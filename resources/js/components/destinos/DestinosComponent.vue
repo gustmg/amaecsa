@@ -1,0 +1,186 @@
+<template>
+    <v-container>
+        <v-row align="center">
+            <v-col cols="4">
+                <div class="text-h6">Catálogo de destino ({{ destinos.length }} registrados)</div>
+            </v-col>
+            <v-col cols="4" align="right">
+                <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
+                <new-destino-dialog-component></new-destino-dialog-component>
+            </v-col>
+            <v-col cols="4">
+                <v-text-field
+                    v-model="searchDestino"
+                    label="Buscar destino por nombre"
+                    append-icon="mdi-magnify"
+                    solo
+                    class="mt-6"
+                ></v-text-field>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col cols="12">
+                <v-card>
+                    <v-card-title>Préstamos realizados por destino</v-card-title>
+                    <v-card-text>
+                        <apexchart ref="apex" height="200" type="bar" :options="options" :series="series"></apexchart>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+            <v-col cols="12">
+                <v-card>
+                    <v-data-table
+                        :headers="destinoHeaders"
+                        :items="destinos"
+                        :search="searchDestino"
+                        item-key="id_destino"
+                    >
+                        <template v-slot:item.prestamos_realizados="{ item }">
+                            {{ getPrestamosRealizados(item.id_destino) }}
+                        </template>
+                        <template v-slot:item.prestamos_pendientes="{ item }">
+                            {{ getPrestamosPendientes(item.id_destino) }}
+                        </template>
+                        <template v-slot:item.opciones="{ item }">
+                            <edit-destino-dialog-component :destino="item"></edit-destino-dialog-component>
+                        </template>
+                    </v-data-table>
+                </v-card>
+                <vue-html2pdf
+                    :show-layout="false"
+                    :float-layout="true"
+                    :enable-download="true"
+                    :preview-modal="false"
+                    :paginate-elements-by-height="1400"
+                    filename="destinos"
+                    :pdf-quality="2"
+                    :manual-pagination="false"
+                    pdf-format="a4"
+                    pdf-orientation="landscape"
+                    pdf-content-width="800px"
+                    ref="html2Pdf"
+                >
+                    <section slot="pdf-content">
+                        <v-data-table
+                            :headers="destinoHeaders"
+                            :items="destinos"
+                            :search="searchDestino"
+                            item-key="id_destino"
+                        >
+                            <template v-slot:item.prestamos_realizados="{ item }">
+                                {{ getPrestamosRealizados(item.id_destino) }}
+                            </template>
+                            <template v-slot:item.prestamos_pendientes="{ item }">
+                                {{ getPrestamosPendientes(item.id_destino) }}
+                            </template>
+                        </v-data-table>
+                    </section>
+                </vue-html2pdf>
+            </v-col>
+        </v-row>
+    </v-container>
+</template>
+<script>
+    import { mapActions, mapGetters } from 'vuex'
+    import VueHtml2pdf from 'vue-html2pdf'
+
+    export default {
+        async mounted() {
+            await this.fetchDestinos()
+            await this.fetchPrestamos()
+            this.setChartData()
+        },
+
+        data() {
+            return {
+                destinoHeaders: [
+                    { text: 'Nombre', value: 'nombre_destino', width: '50%' },
+                    { text: 'Préstamos realizados', value: 'prestamos_realizados', width: '15%', align: 'center' },
+                    { text: 'Préstamos pendientes', value: 'prestamos_pendientes', width: '15%', align: 'center' },
+                    { text: 'Opciones', value: 'opciones', width: '20%', align: 'center' },
+                ],
+
+                searchDestino: '',
+
+                options: {
+                    chart: {
+                        id: 'vuechart-example',
+                    },
+                    xaxis: {
+                        name: 'Personal',
+                        categories: [],
+                    },
+                },
+                series: [
+                    {
+                        name: 'series-1',
+                        data: [],
+                    },
+                ],
+            }
+        },
+
+        computed: {
+            ...mapGetters('destino', {
+                destinos: 'getDestinos',
+            }),
+
+            ...mapGetters('prestamo', {
+                prestamos: 'getPrestamos',
+            }),
+        },
+
+        methods: {
+            ...mapActions('destino', ['fetchDestinos']),
+            ...mapActions('prestamo', ['fetchPrestamos']),
+
+            getPrestamosRealizados: function(id_destino) {
+                return this.prestamos.filter(prestamo => {
+                    return prestamo.id_destino == id_destino
+                }).length
+            },
+
+            getPrestamosPendientes: function(id_destino) {
+                return this.prestamos.filter(prestamo => {
+                    return prestamo.id_destino == id_destino && prestamo.recibido == 0
+                }).length
+            },
+
+            setChartData: function() {
+                var listaNombres = []
+                var listaPrestamos = []
+                var listaPrestamosPendientes = []
+
+                this.destinos.forEach(destino => {
+                    listaNombres.push(destino.nombre_destino)
+                })
+
+                this.destinos.forEach(destino => {
+                    listaPrestamos.push(this.getPrestamosRealizados(destino.id_destino))
+                })
+
+                this.destinos.forEach(destino => {
+                    listaPrestamosPendientes.push(this.getPrestamosPendientes(destino.id_destino))
+                })
+
+                this.options = {
+                    ...this.options,
+                    ...{
+                        xaxis: {
+                            categories: listaNombres,
+                        },
+                    },
+                }
+
+                this.$refs.apex.updateSeries([
+                    { name: 'Prestamos', data: listaPrestamos },
+                    { name: 'Préstamos pendientes', data: listaPrestamosPendientes },
+                ])
+            },
+
+            download: function() {
+                this.$refs.html2Pdf.generatePdf()
+            },
+        },
+    }
+</script>
