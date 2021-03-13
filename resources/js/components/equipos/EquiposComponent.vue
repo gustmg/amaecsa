@@ -11,10 +11,11 @@
             <v-col cols="4">
                 <v-text-field
                     v-model="searchEquipo"
-                    label="Buscar equipo por nombre o código"
+                    label="Buscar equipo por nombre, código o categoría"
                     append-icon="mdi-magnify"
                     solo
                     class="mt-6"
+                    v-on:input="setChartData"
                 ></v-text-field>
             </v-col>
         </v-row>
@@ -41,7 +42,7 @@
             </v-col>
             <v-col cols="12">
                 <v-card>
-                    <v-data-table :headers="equipoHeaders" :items="equipos" :search="searchEquipo" item-key="id_equipo">
+                    <v-data-table :headers="equipoHeaders" :items="filteredEquipos" item-key="id_equipo">
                         <template v-slot:item.stock_equipo="{ item }">
                             <div align="center">
                                 <div>{{ item.stock_equipo }}</div>
@@ -180,6 +181,18 @@
 
                 return activos.toFixed(2)
             },
+
+            filteredEquipos: function() {
+                return this.equipos.filter(equipo => {
+                    return (
+                        equipo.nombre_equipo.toLowerCase().indexOf(this.searchEquipo.toLowerCase()) >= 0 ||
+                        equipo.codigo_barras_equipo.toLowerCase().indexOf(this.searchEquipo.toLowerCase()) >= 0 ||
+                        equipo.marca.nombre_marca.toLowerCase().indexOf(this.searchEquipo.toLowerCase()) >= 0 ||
+                        equipo.categoria.nombre_categoria.toLowerCase().indexOf(this.searchEquipo.toLowerCase()) >= 0 ||
+                        equipo.categoria.codigo_categoria.toLowerCase().indexOf(this.searchEquipo.toLowerCase()) >= 0
+                    )
+                })
+            },
         },
 
         methods: {
@@ -247,11 +260,11 @@
                 var listaNombres = []
                 var stocks = []
 
-                this.equipos.forEach(equipo => {
+                this.filteredEquipos.forEach(equipo => {
                     listaNombres.push(equipo.nombre_equipo)
                 })
 
-                this.equipos.forEach(equipo => {
+                this.filteredEquipos.forEach(equipo => {
                     stocks.push(equipo.stock_equipo)
                 })
 

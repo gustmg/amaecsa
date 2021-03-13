@@ -19,8 +19,8 @@
                         rounded
                         filled
                         v-model="editEquipo.codigo_barras_equipo"
-                        :rules="codigoRules"
                         append-icon="mdi-barcode"
+                        readonly
                     ></v-text-field>
                     <v-select
                         v-model="editEquipo.desechable"
@@ -29,7 +29,8 @@
                         :items="tipoEquipo"
                         item-text="text"
                         item-value="id"
-                        label="Elige el tipo de equipo"
+                        label="Tipo de equipo"
+                        readonly
                     ></v-select>
                     <v-select
                         v-model="editEquipo.id_marca_equipo"
@@ -38,7 +39,8 @@
                         :items="marcas"
                         item-text="nombre_marca"
                         item-value="id_marca"
-                        label="Elige una marca"
+                        label="Marca"
+                        readonly
                     ></v-select>
                     <v-select
                         v-model="editEquipo.id_categoria_equipo"
@@ -47,7 +49,8 @@
                         :items="categorias"
                         item-text="nombre_categoria"
                         item-value="id_categoria"
-                        label="Elige una categoría"
+                        label="Categoría"
+                        readonly
                     ></v-select>
                     <v-select
                         v-model="editEquipo.id_unidad_medida_equipo"
@@ -56,7 +59,8 @@
                         :items="unidades_medida"
                         item-text="nombre_unidad_medida"
                         item-value="id_unidad_medida"
-                        label="Elige una unidad de medida"
+                        label="Unidad de medida"
+                        readonly
                     ></v-select>
                 </v-form>
             </v-card-text>

@@ -1,5 +1,5 @@
 <template>
-    <v-navigation-drawer app clipped color="secondary">
+    <v-navigation-drawer app color="secondary">
         <v-list-item link href="/home">
             <v-list-item-avatar>
                 <v-icon>mdi-home</v-icon>

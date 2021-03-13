@@ -15,6 +15,7 @@
                     append-icon="mdi-magnify"
                     solo
                     class="mt-6"
+                    v-on:input="setChartData"
                 ></v-text-field>
             </v-col>
         </v-row>
@@ -129,6 +130,15 @@
             ...mapGetters('prestamo', {
                 prestamos: 'getPrestamos',
             }),
+
+            filteredPersonal: function() {
+                return this.personal.filter(persona => {
+                    return (
+                        persona.nombre_personal.toLowerCase().indexOf(this.searchPersonal.toLowerCase()) >= 0 ||
+                        persona.codigo_personal.toLowerCase().indexOf(this.searchPersonal.toLowerCase()) >= 0
+                    )
+                })
+            },
         },
 
         methods: {
@@ -152,15 +162,15 @@
                 var listaPrestamos = []
                 var listaPrestamosPendientes = []
 
-                this.personal.forEach(personal => {
+                this.filteredPersonal.forEach(personal => {
                     listaNombres.push(personal.nombre_personal)
                 })
 
-                this.personal.forEach(personal => {
+                this.filteredPersonal.forEach(personal => {
                     listaPrestamos.push(this.getPrestamosRealizados(personal.id_personal))
                 })
 
-                this.personal.forEach(personal => {
+                this.filteredPersonal.forEach(personal => {
                     listaPrestamosPendientes.push(this.getPrestamosPendientes(personal.id_personal))
                 })
 

@@ -20,6 +20,8 @@
                         filled
                         v-model="categoria.codigo_categoria"
                         :rules="codigoCategoriaRules"
+                        counter="10"
+                        maxlength="10"
                     ></v-text-field>
                 </v-form>
             </v-card-text>

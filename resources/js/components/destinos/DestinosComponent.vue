@@ -15,6 +15,7 @@
                     append-icon="mdi-magnify"
                     solo
                     class="mt-6"
+                    v-on:input="setChartData"
                 ></v-text-field>
             </v-col>
         </v-row>
@@ -128,6 +129,12 @@
             ...mapGetters('prestamo', {
                 prestamos: 'getPrestamos',
             }),
+
+            filteredDestinos: function() {
+                return this.destinos.filter(destino => {
+                    return destino.nombre_destino.toLowerCase().indexOf(this.searchDestino.toLowerCase()) >= 0
+                })
+            },
         },
 
         methods: {
@@ -151,17 +158,31 @@
                 var listaPrestamos = []
                 var listaPrestamosPendientes = []
 
-                this.destinos.forEach(destino => {
-                    listaNombres.push(destino.nombre_destino)
-                })
+                if (this.searchDestino.length == 0) {
+                    this.destinos.forEach(destino => {
+                        listaNombres.push(destino.nombre_destino)
+                    })
 
-                this.destinos.forEach(destino => {
-                    listaPrestamos.push(this.getPrestamosRealizados(destino.id_destino))
-                })
+                    this.destinos.forEach(destino => {
+                        listaPrestamos.push(this.getPrestamosRealizados(destino.id_destino))
+                    })
 
-                this.destinos.forEach(destino => {
-                    listaPrestamosPendientes.push(this.getPrestamosPendientes(destino.id_destino))
-                })
+                    this.destinos.forEach(destino => {
+                        listaPrestamosPendientes.push(this.getPrestamosPendientes(destino.id_destino))
+                    })
+                } else {
+                    this.filteredDestinos.forEach(destino => {
+                        listaNombres.push(destino.nombre_destino)
+                    })
+
+                    this.filteredDestinos.forEach(destino => {
+                        listaPrestamos.push(this.getPrestamosRealizados(destino.id_destino))
+                    })
+
+                    this.filteredDestinos.forEach(destino => {
+                        listaPrestamosPendientes.push(this.getPrestamosPendientes(destino.id_destino))
+                    })
+                }
 
                 this.options = {
                     ...this.options,

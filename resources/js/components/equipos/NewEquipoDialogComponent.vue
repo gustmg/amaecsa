@@ -21,6 +21,8 @@
                         v-model="equipo.codigo_barras_equipo"
                         :rules="codigoRules"
                         append-icon="mdi-barcode"
+                        counter="106"
+                        maxlength="106"
                     ></v-text-field>
                     <v-select
                         v-model="equipo.desechable"
@@ -31,7 +33,7 @@
                         item-value="id"
                         label="Elige el tipo de equipo"
                     ></v-select>
-                    <v-select
+                    <v-autocomplete
                         v-model="equipo.id_marca_equipo"
                         rounded
                         filled
@@ -40,7 +42,7 @@
                         item-value="id_marca"
                         label="Elige una marca"
                         :rules="required"
-                    ></v-select>
+                    ></v-autocomplete>
                     <v-select
                         v-model="equipo.id_categoria_equipo"
                         rounded
