@@ -12,6 +12,7 @@ import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import storeData from './store/index'
 import VueApexCharts from 'vue-apexcharts'
+import es from 'vuetify/lib/locale/es'
 
 Vue.use(Vuetify)
 Vue.use(Vuex)
@@ -100,6 +101,10 @@ const app = new Vue({
                     accent: '#FFAB40',
                 },
             },
+        },
+        lang: {
+            locales: { es },
+            current: 'es',
         },
     }),
     store,

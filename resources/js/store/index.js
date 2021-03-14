@@ -9,11 +9,26 @@ import salida from './modules/Salida'
 import prestamo from './modules/Prestamo'
 
 export default {
-    state: {},
+    state: {
+        drawer: false,
+    },
 
-    mutations: {},
+    getters: {
+        getDrawer(state) {
+            return state.drawer
+        },
+    },
 
-    actions: {},
+    mutations: {
+        SHOW_DRAWER(state) {
+            console.log('Mostrando')
+            state.drawer = !state.drawer
+        },
+        HIDE_DRAWER(state) {
+            console.log('Ocultando')
+            state.drawer = !state.drawer
+        },
+    },
 
     modules: {
         personal,
