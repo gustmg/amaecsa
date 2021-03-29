@@ -36,18 +36,26 @@
                                     </v-list-item>
                                 </template>
                             </v-autocomplete>
+                            <v-text-field
+                                label="Insertar equipo por código"
+                                v-model="buscadorCodigo"
+                                v-on:keyup.enter="agregaEquipo($event)"
+                                rounded
+                                filled
+                                append-icon="mdi-barcode"
+                            ></v-text-field>
                         </v-col>
                     </v-row>
                     <v-row>
                         <v-col cols="12">
                             <v-data-table
-                                :headers="equiposEntradaHeaders"
+                                :headers="equiposPrestamoHeaders"
                                 :items="equiposElegidos"
                                 item-key="id_prestamo"
                                 hide-default-footer
                             >
                                 <template v-slot:item.desechable="{ item }">
-                                    <div v-if="item.desechable">Desechable</div>
+                                    <div v-if="item.desechable">Consumible</div>
                                     <div v-else>Normal</div>
                                 </template>
                                 <template v-slot:item.cantidad="{ item }">
@@ -87,9 +95,14 @@
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn text v-on:click="closeDialog()">Cancelar</v-btn>
-                <v-btn v-on:click="triggerNuevoEntrada()" :disabled="!validPrestamo">Registrar préstamo</v-btn>
+                <v-btn v-on:click="triggerNuevoEntrada()" :disabled="!validPrestamo" color="accent"
+                    >Registrar préstamo</v-btn
+                >
             </v-card-actions>
         </v-card>
+        <v-snackbar v-model="codigoNoEncontrado"
+            >El código ingresado no ha sido encontrado en la lista de equipos.</v-snackbar
+        >
     </v-dialog>
 </template>
 <script>
@@ -104,7 +117,7 @@
 
                 personalElegido: null,
 
-                equiposEntradaHeaders: [
+                equiposPrestamoHeaders: [
                     { text: 'Código de barras', value: 'codigo_barras_equipo' },
                     { text: 'Equipo', value: 'nombre_equipo' },
                     { text: 'Marca', value: 'marca_equipo' },
@@ -119,6 +132,9 @@
                 equiposElegidos: [],
 
                 required: [v => !!v || 'Este campo es requerido.'],
+
+                buscadorCodigo: '',
+                codigoNoEncontrado: false,
             }
         },
 
@@ -206,6 +222,16 @@
             quitaEntrada: function(item) {
                 var index = this.equiposElegidos.indexOf(item)
                 this.equiposElegidos.splice(index, 1)
+            },
+
+            agregaEquipo(event) {
+                if (this.equiposPrestamo.some(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
+                    var x = this.equiposPrestamo.find(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)
+                    this.equiposElegidos.push(x)
+                } else {
+                    this.codigoNoEncontrado = true
+                }
+                this.buscadorCodigo = ''
             },
         },
     }

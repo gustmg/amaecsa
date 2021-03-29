@@ -1,17 +1,17 @@
 <template>
     <v-container>
         <v-row align="center">
-            <v-col cols="2">
+            <v-col>
                 <div class="text-h6">
                     Préstamos<br />
                     ({{ prestamos.length }} registrados)
                 </div>
             </v-col>
-            <v-col cols="4" align="right">
+            <v-col class="d-inline-flex">
                 <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
                 <new-prestamo-dialog-component></new-prestamo-dialog-component>
             </v-col>
-            <v-col cols="4">
+            <v-col>
                 <v-text-field
                     v-model="searchPrestamo"
                     label="Buscar prestamo por nombre o código"
@@ -20,7 +20,7 @@
                     class="mt-6"
                 ></v-text-field>
             </v-col>
-            <v-col cols="2">
+            <v-col>
                 <v-select
                     label="Mostrar por"
                     :items="tipoFiltro"
@@ -144,7 +144,7 @@
                     { id: 1, text: 'Todos' },
                     { id: 2, text: 'Recibidos' },
                     { id: 3, text: 'Pendientes por recibir' },
-                    { id: 4, text: 'Desechables' },
+                    { id: 4, text: 'Consumibles' },
                 ],
 
                 prestamosStatusSeries: [],
@@ -155,7 +155,7 @@
                             show: true,
                         },
                     },
-                    labels: ['Finalizados', 'Pendientes', 'Desechables'],
+                    labels: ['Finalizados', 'Pendientes', 'Consumibles'],
                     responsive: [
                         {
                             breakpoint: 480,

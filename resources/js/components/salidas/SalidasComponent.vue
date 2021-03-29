@@ -1,14 +1,14 @@
 <template>
     <v-container>
         <v-row align="center">
-            <v-col cols="5">
+            <v-col>
                 <div class="text-h6">Catálogo de salida ({{ salidas.length }} registradas)</div>
             </v-col>
-            <v-col cols="3" align="right">
+            <v-col class="d-inline-flex">
                 <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
                 <new-salida-dialog-component></new-salida-dialog-component>
             </v-col>
-            <v-col cols="4">
+            <v-col>
                 <v-text-field
                     v-model="searchSalida"
                     label="Buscar salida"
@@ -20,11 +20,13 @@
         </v-row>
         <v-row>
             <v-col cols="12">
-                <v-data-table :headers="salidaHeaders" :items="salidas" :search="searchSalida" item-key="id_salida">
-                    <template v-slot:item.opciones="{ item }">
-                        <salida-detalle-dialog-component :salida="item"></salida-detalle-dialog-component>
-                    </template>
-                </v-data-table>
+                <v-card>
+                    <v-data-table :headers="salidaHeaders" :items="salidas" :search="searchSalida" item-key="id_salida">
+                        <template v-slot:item.opciones="{ item }">
+                            <salida-detalle-dialog-component :salida="item"></salida-detalle-dialog-component>
+                        </template>
+                    </v-data-table>
+                </v-card>
                 <vue-html2pdf
                     :show-layout="false"
                     :float-layout="true"

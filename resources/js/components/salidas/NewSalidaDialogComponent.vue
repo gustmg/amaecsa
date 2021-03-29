@@ -7,8 +7,8 @@
             <v-card-title>Nuevo salida</v-card-title>
             <v-card-text>
                 <v-container>
-                    <v-row>
-                        <v-col cols="6" offset-md="3">
+                    <v-row justify="center">
+                        <v-col cols="5">
                             <v-autocomplete
                                 v-model="equiposElegidos"
                                 label="Buscar equipo por nombre o código"
@@ -18,7 +18,17 @@
                                 rounded
                                 filled
                                 multiple
+                                :filter="filterEquipo"
+                                hide-selected
                             ></v-autocomplete>
+                            <v-text-field
+                                label="Insertar equipo por código"
+                                v-model="buscadorCodigo"
+                                v-on:keyup.enter="agregaEquipo($event)"
+                                rounded
+                                filled
+                                append-icon="mdi-barcode"
+                            ></v-text-field>
                         </v-col>
                     </v-row>
                     <v-row>
@@ -38,7 +48,7 @@
                                         rounded
                                         filled
                                         :max="item.stock_equipo"
-                                        :rules="stock"
+                                        :rules="required"
                                     ></v-text-field>
                                 </template>
                                 <template v-slot:item.comentario="{ item }">
@@ -67,6 +77,9 @@
                 >
             </v-card-actions>
         </v-card>
+        <v-snackbar v-model="codigoNoEncontrado"
+            >El código ingresado no ha sido encontrado en la lista de equipos.</v-snackbar
+        >
     </v-dialog>
 </template>
 <script>
@@ -93,6 +106,9 @@
                 equiposElegidos: [],
 
                 required: [v => !!v || 'Este campo es requerido.'],
+
+                buscadorCodigo: '',
+                codigoNoEncontrado: false,
             }
         },
 
@@ -146,6 +162,25 @@
             quitaEntrada: function(item) {
                 var index = this.equiposElegidos.indexOf(item)
                 this.equiposElegidos.splice(index, 1)
+            },
+
+            filterEquipo(item, queryText, itemText) {
+                return (
+                    item.nombre_equipo.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1 ||
+                    item.codigo_barras_equipo.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1
+                )
+            },
+
+            agregaEquipo(event) {
+                if (this.equiposSalida.some(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
+                    if (!this.equiposElegidos.some(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
+                        var x = this.equiposSalida.find(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)
+                        this.equiposElegidos.push(x)
+                    }
+                } else {
+                    this.codigoNoEncontrado = true
+                }
+                this.buscadorCodigo = ''
             },
         },
     }

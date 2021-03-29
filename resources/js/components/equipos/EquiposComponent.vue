@@ -1,14 +1,14 @@
 <template>
     <v-container>
         <v-row align="center">
-            <v-col cols="5">
+            <v-col>
                 <div class="text-h6">Catálogo de equipo</div>
             </v-col>
-            <v-col cols="3" align="right">
+            <v-col class="d-inline-flex">
                 <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
                 <new-equipo-dialog-component></new-equipo-dialog-component>
             </v-col>
-            <v-col cols="4">
+            <v-col>
                 <v-text-field
                     v-model="searchEquipo"
                     label="Buscar equipo por nombre, código o categoría"
@@ -55,7 +55,7 @@
                             <div class="text-caption">{{ getCostoUnitario(item.id_equipo) }}</div>
                         </template>
                         <template v-slot:item.desechable="{ item }">
-                            <div v-if="item.desechable">Desechable</div>
+                            <div v-if="item.desechable">Consumible</div>
                             <div v-else>Normal</div>
                         </template>
                         <template v-slot:item.opciones="{ item }">
@@ -96,7 +96,7 @@
                                 <div class="text-caption">{{ getCostoUnitario(item.id_equipo) }}</div>
                             </template>
                             <template v-slot:item.desechable="{ item }">
-                                <div v-if="item.desechable">Desechable</div>
+                                <div v-if="item.desechable">Consumible</div>
                                 <div v-else>Normal</div>
                             </template>
                         </v-data-table>

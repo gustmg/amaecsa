@@ -1,14 +1,14 @@
 <template>
     <v-container>
         <v-row align="center">
-            <v-col cols="5">
+            <v-col>
                 <div class="text-h6">Catálogo de entrada ({{ entradas.length }} registradas)</div>
             </v-col>
-            <v-col cols="3">
+            <v-col class="d-inline-flex">
                 <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
                 <new-entrada-dialog-component></new-entrada-dialog-component>
             </v-col>
-            <v-col cols="4">
+            <v-col>
                 <v-text-field
                     v-model="searchEntrada"
                     label="Buscar entrada"
@@ -20,12 +20,19 @@
         </v-row>
         <v-row>
             <v-col cols="12">
-                <v-data-table :headers="entradaHeaders" :items="entradas" :search="searchEntrada" item-key="id_entrada">
-                    <template v-slot:item.costo_total="{ item }"> $ {{ getCostoTotal(item) }} </template>
-                    <template v-slot:item.opciones="{ item }">
-                        <entrada-detalle-dialog-component :entrada="item"></entrada-detalle-dialog-component>
-                    </template>
-                </v-data-table>
+                <v-card>
+                    <v-data-table
+                        :headers="entradaHeaders"
+                        :items="entradas"
+                        :search="searchEntrada"
+                        item-key="id_entrada"
+                    >
+                        <template v-slot:item.costo_total="{ item }"> $ {{ getCostoTotal(item) }} </template>
+                        <template v-slot:item.opciones="{ item }">
+                            <entrada-detalle-dialog-component :entrada="item"></entrada-detalle-dialog-component>
+                        </template>
+                    </v-data-table>
+                </v-card>
                 <vue-html2pdf
                     :show-layout="false"
                     :float-layout="true"

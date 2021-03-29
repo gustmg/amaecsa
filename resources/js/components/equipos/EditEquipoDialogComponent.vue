@@ -91,7 +91,7 @@
 
                 tipoEquipo: [
                     { id: 0, text: 'Normal' },
-                    { id: 1, text: 'Desechable' },
+                    { id: 1, text: 'Consumible' },
                 ],
 
                 required: [v => !!v || 'Este campo es requerido.'],

@@ -1,14 +1,14 @@
 <template>
     <v-container>
         <v-row align="center">
-            <v-col cols="4">
+            <v-col>
                 <div class="text-h6">Catálogo de personal ({{ personal.length }} registrados)</div>
             </v-col>
-            <v-col cols="4" align="right">
+            <v-col class="d-inline-flex">
                 <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
                 <new-personal-dialog-component></new-personal-dialog-component>
             </v-col>
-            <v-col cols="4">
+            <v-col>
                 <v-text-field
                     v-model="searchPersonal"
                     label="Buscar personal por nombre o código"

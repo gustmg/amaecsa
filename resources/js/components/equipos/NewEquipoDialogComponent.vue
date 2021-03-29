@@ -21,8 +21,8 @@
                         v-model="equipo.codigo_barras_equipo"
                         :rules="codigoRules"
                         append-icon="mdi-barcode"
-                        counter="106"
-                        maxlength="106"
+                        counter="12"
+                        maxlength="12"
                     ></v-text-field>
                     <v-select
                         v-model="equipo.desechable"
@@ -93,12 +93,13 @@
 
                 tipoEquipo: [
                     { id: 0, text: 'Normal' },
-                    { id: 1, text: 'Desechable' },
+                    { id: 1, text: 'Consumible' },
                 ],
 
                 required: [v => !!v || 'Este campo es requerido.'],
                 codigoRules: [
                     v => !!v || 'Este campo es requerido.',
+                    v => v.length == 12 || 'Ingrese el código a 12 caracteres.',
                     v => !this.existeCodigoEquipo(v) || 'Este código ya está registrado.',
                 ],
             }

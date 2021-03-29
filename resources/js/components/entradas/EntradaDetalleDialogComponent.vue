@@ -107,7 +107,7 @@
                 </vue-html2pdf>
             </v-card-text>
             <v-card-actions>
-                <v-btn text v-on:click="closeDialog()">Cancelar</v-btn>
+                <v-btn text v-on:click="detalleEntradaDialog = false">Cancelar</v-btn>
                 <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar</v-btn>
             </v-card-actions>
         </v-card>
