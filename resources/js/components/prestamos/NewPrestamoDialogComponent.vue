@@ -226,8 +226,19 @@
 
             agregaEquipo(event) {
                 if (this.equiposPrestamo.some(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
-                    var x = this.equiposPrestamo.find(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)
-                    this.equiposElegidos.push(x)
+                    var equipo = this.equiposPrestamo.find(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)
+                    this.equiposElegidos.push({
+                    id_prestamo: this.equiposElegidos.length + 1,
+                    id_equipo: equipo.id_equipo,
+                    nombre_equipo: equipo.nombre_equipo,
+                    codigo_barras_equipo: equipo.codigo_barras_equipo,
+                    desechable: equipo.desechable,
+                    cantidad: 1,
+                    stock_equipo: equipo.stock_equipo,
+                    marca_equipo: equipo.marca_equipo,
+                    categoria_equipo: equipo.categoria_equipo,
+                    unidad_medida_equipo: equipo.unidad_medida_equipo,
+                })
                 } else {
                     this.codigoNoEncontrado = true
                 }

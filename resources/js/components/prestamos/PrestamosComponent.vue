@@ -89,7 +89,7 @@
                         <section slot="pdf-content">
                             <v-data-table
                                 :headers="prestamoHeaders"
-                                :items="prestamos"
+                                :items="filteredPrestamos"
                                 :search="searchPrestamo"
                                 item-key="id_prestamo"
                                 disable-pagination

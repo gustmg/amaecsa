@@ -48,3 +48,18 @@ Route::post('fetchSalidas', 'SalidaController@fetchSalidas')->middleware('auth')
 
 Route::resource('prestamos', 'PrestamoController')->middleware('auth');
 Route::post('fetchPrestamos', 'PrestamoController@fetchPrestamos')->middleware('auth');
+
+Route::post('createBackup', function(){
+    $filename="backup-".date("d-m-Y-H-i").".sql";
+    $mysqlPath="C:\\xampp/mysql/bin/mysqldump";
+    $file_path="C:\\Laravel";
+    try{
+        $command = "$mysqlPath --user=" . env('DB_USERNAME') ." --password=" . env('DB_PASSWORD') . " --host=" . env('DB_HOST') . " " . env('DB_DATABASE') . "  > " . $file_path . "/" . $filename."  2>&1";
+        $returnVar = NULL;
+        $output  = NULL;
+        exec($command, $output, $returnVar);
+        return 1;
+     }catch(Exception $e){
+        return "0 ".$e->errorInfo;
+     }
+});
