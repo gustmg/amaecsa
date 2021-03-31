@@ -42,10 +42,8 @@
                 </v-card>
             </v-col>
             <v-col cols="12">
-            HOLA
-                <v-btn v-on:click="createBackup()">Respaldar base de datos</v-btn>
+                <v-btn color="accent" v-on:click="createBackup()">Respaldar base de datos</v-btn>
             </v-col>
-
         </v-row>
         <v-snackbar v-model="snackbar">Respaldo finalizado.</v-snackbar>
     </v-container>
@@ -158,7 +156,7 @@
                 .post('createBackup')
                 .then(response=>{
                     if(response.data==1){
-                        snackbar=true
+                        this.snackbar=true
                     }
                 })
                 .catch(error=>console.log(error))
