@@ -53,7 +53,7 @@ export default {
             var equiposPrestamo = []
 
             state.equipos.forEach((equipo, index) => {
-                if (equipo.stock_equipo > 1) {
+                if (equipo.stock_equipo >= 1) {
                     equiposPrestamo.push({
                         id_equipo: equipo.id_equipo,
                         nombre_equipo: equipo.nombre_equipo,
