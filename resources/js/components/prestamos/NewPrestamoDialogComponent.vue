@@ -63,10 +63,12 @@
                                         label="Cantidad"
                                         v-model.number="item.cantidad"
                                         type="number"
+                                        :hint="'En stock: ' + item.stock_equipo"
                                         rounded
                                         filled
                                         dense
                                         :disabled="!item.desechable"
+                                        persistent-hint
                                         class="mt-6"
                                     ></v-text-field>
                                 </template>
@@ -131,7 +133,7 @@
 
                 equiposElegidos: [],
 
-                required: [v => !!v || 'Este campo es requerido.'],
+                required: [(v) => !!v || 'Este campo es requerido.'],
 
                 buscadorCodigo: '',
                 codigoNoEncontrado: false,
@@ -151,22 +153,22 @@
                 destinos: 'getDestinos',
             }),
 
-            costoTotal: function() {
+            costoTotal: function () {
                 var total = 0
-                this.equiposElegidos.forEach(equipo => {
+                this.equiposElegidos.forEach((equipo) => {
                     total = total + +(equipo.costo_unitario * equipo.cantidad).toFixed(2)
                 })
 
                 return total.toFixed(2)
             },
 
-            validPrestamo: function() {
+            validPrestamo: function () {
                 if (this.personalElegido) {
                     if (this.equiposElegidos.length > 0) {
                         if (
-                            this.equiposElegidos.some(equipo => equipo.cantidad < 1) ||
-                            this.equiposElegidos.some(equipo => !equipo.id_destino) ||
-                            this.equiposElegidos.some(equipo => equipo.cantidad > equipo.stock_equipo)
+                            this.equiposElegidos.some((equipo) => equipo.cantidad < 1) ||
+                            this.equiposElegidos.some((equipo) => !equipo.id_destino) ||
+                            this.equiposElegidos.some((equipo) => equipo.cantidad > equipo.stock_equipo)
                         ) {
                             return false
                         } else return true
@@ -178,11 +180,11 @@
         methods: {
             ...mapActions('prestamo', ['savePrestamo', 'fetchPrestamos']),
 
-            triggerNuevoEntrada: async function() {
+            triggerNuevoEntrada: async function () {
                 this.loading = true
 
                 var prestamos = []
-                this.equiposElegidos.forEach(equipo => {
+                this.equiposElegidos.forEach((equipo) => {
                     prestamos.push({
                         id_personal: this.personalElegido,
                         id_equipo: equipo.id_equipo,
@@ -199,12 +201,12 @@
                 window.location.reload()
             },
 
-            closeDialog: function() {
+            closeDialog: function () {
                 this.equiposElegidos = []
                 this.nuevoEntradaDialog = false
             },
 
-            insertaPrestamo: function(equipo) {
+            insertaPrestamo: function (equipo) {
                 this.equiposElegidos.push({
                     id_prestamo: this.equiposElegidos.length + 1,
                     id_equipo: equipo.id_equipo,
@@ -219,26 +221,28 @@
                 })
             },
 
-            quitaEntrada: function(item) {
+            quitaEntrada: function (item) {
                 var index = this.equiposElegidos.indexOf(item)
                 this.equiposElegidos.splice(index, 1)
             },
 
             agregaEquipo(event) {
-                if (this.equiposPrestamo.some(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
-                    var equipo = this.equiposPrestamo.find(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)
+                if (this.equiposPrestamo.some((equipo) => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
+                    var equipo = this.equiposPrestamo.find(
+                        (equipo) => equipo.codigo_barras_equipo == this.buscadorCodigo
+                    )
                     this.equiposElegidos.push({
-                    id_prestamo: this.equiposElegidos.length + 1,
-                    id_equipo: equipo.id_equipo,
-                    nombre_equipo: equipo.nombre_equipo,
-                    codigo_barras_equipo: equipo.codigo_barras_equipo,
-                    desechable: equipo.desechable,
-                    cantidad: 1,
-                    stock_equipo: equipo.stock_equipo,
-                    marca_equipo: equipo.marca_equipo,
-                    categoria_equipo: equipo.categoria_equipo,
-                    unidad_medida_equipo: equipo.unidad_medida_equipo,
-                })
+                        id_prestamo: this.equiposElegidos.length + 1,
+                        id_equipo: equipo.id_equipo,
+                        nombre_equipo: equipo.nombre_equipo,
+                        codigo_barras_equipo: equipo.codigo_barras_equipo,
+                        desechable: equipo.desechable,
+                        cantidad: 1,
+                        stock_equipo: equipo.stock_equipo,
+                        marca_equipo: equipo.marca_equipo,
+                        categoria_equipo: equipo.categoria_equipo,
+                        unidad_medida_equipo: equipo.unidad_medida_equipo,
+                    })
                 } else {
                     this.codigoNoEncontrado = true
                 }

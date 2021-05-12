@@ -15,6 +15,15 @@
                         :rules="required"
                     ></v-text-field>
                     <v-text-field
+                        label="Código de producto"
+                        rounded
+                        filled
+                        v-model="equipo.codigo_producto_equipo"
+                        :rules="codigoRules"
+                        counter="12"
+                        maxlength="12"
+                    ></v-text-field>
+                    <v-text-field
                         label="Código de barras"
                         rounded
                         filled
@@ -28,10 +37,10 @@
                         v-model="equipo.desechable"
                         rounded
                         filled
-                        :items="tipoEquipo"
+                        :items="consumible"
                         item-text="text"
                         item-value="id"
-                        label="Elige el tipo de equipo"
+                        label="Modo de préstamo"
                     ></v-select>
                     <v-autocomplete
                         v-model="equipo.id_marca_equipo"
@@ -51,6 +60,16 @@
                         item-text="nombre_categoria"
                         item-value="id_categoria"
                         label="Elige una categoría"
+                        :rules="required"
+                    ></v-select>
+                    <v-select
+                        v-model="equipo.id_tipo_equipo"
+                        rounded
+                        filled
+                        :items="tipoEquipo"
+                        item-text="nombre_tipo_equipo"
+                        item-value="id_tipo_equipo"
+                        label="Tipo de equipo"
                         :rules="required"
                     ></v-select>
                     <v-select
@@ -84,23 +103,25 @@
 
                 equipo: {
                     nombre_equipo: '',
+                    codigo_producto_equipo: '',
                     codigo_barras_equipo: '',
                     desechable: 0,
                     id_marca_equipo: null,
+                    id_tipo_equipo: null,
                     id_categoria_equipo: null,
                     id_unidad_medida_equipo: null,
                 },
 
-                tipoEquipo: [
+                consumible: [
                     { id: 0, text: 'Normal' },
                     { id: 1, text: 'Consumible' },
                 ],
 
-                required: [v => !!v || 'Este campo es requerido.'],
+                required: [(v) => !!v || 'Este campo es requerido.'],
                 codigoRules: [
-                    v => !!v || 'Este campo es requerido.',
-                    v => v.length == 12 || 'Ingrese el código a 12 caracteres.',
-                    v => !this.existeCodigoEquipo(v) || 'Este código ya está registrado.',
+                    (v) => !!v || 'Este campo es requerido.',
+                    (v) => v.length == 12 || 'Ingrese el código a 12 caracteres.',
+                    (v) => !this.existeCodigoEquipo(v) || 'Este código ya está registrado.',
                 ],
             }
         },
@@ -121,12 +142,16 @@
             ...mapGetters('equipo', {
                 equipos: 'getEquipos',
             }),
+
+            ...mapGetters('tipo_equipo', {
+                tipoEquipo: 'getTipoEquipo',
+            }),
         },
 
         methods: {
             ...mapActions('equipo', ['saveEquipo', 'fetchEquipos']),
 
-            triggerNuevoEquipo: async function() {
+            triggerNuevoEquipo: async function () {
                 this.loading = true
 
                 await this.saveEquipo(this.equipo)
@@ -134,22 +159,23 @@
 
                 this.loading = false
 
-                this.closeDialog()
-            },
-
-            closeDialog: function() {
                 this.equipo.nombre_equipo = ''
+                this.equipo.codigo_producto_equipo = ''
                 this.equipo.codigo_barras_equipo = ''
                 this.equipo.desechable = 0
                 this.equipo.id_marca_equipo = null
+                this.equipo.id_tipo_equipo = null
                 this.equipo.id_categoria_equipo = null
                 this.equipo.id_unidad_medida_equipo = null
                 this.$refs.nuevoEquipoForm.resetValidation()
+            },
+
+            closeDialog: function () {
                 this.nuevoEquipoDialog = false
             },
 
-            existeCodigoEquipo: function(codigo) {
-                if (this.equipos.some(equipo => equipo.codigo_barras_equipo == codigo)) {
+            existeCodigoEquipo: function (codigo) {
+                if (this.equipos.some((equipo) => equipo.codigo_barras_equipo == codigo)) {
                     return true
                 } else return false
             },

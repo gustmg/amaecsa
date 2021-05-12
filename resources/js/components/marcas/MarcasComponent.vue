@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container fluid>
         <v-row align="center">
             <v-col cols="4">
                 <div class="text-h6">Catálogo de marcas ({{ marcas.length }} registradas)</div>
@@ -19,14 +19,16 @@
         </v-row>
         <v-row>
             <v-col cols="12">
-                <v-data-table :headers="marcaHeaders" :items="marcas" :search="searchMarca" item-key="id_marca">
-                    <template v-slot:item.equipo_marca="{ item }">
-                        {{ getProductosTotal(item.id_marca) }}
-                    </template>
-                    <template v-slot:item.opciones="{ item }">
-                        <edit-marca-dialog-component :marca="item"></edit-marca-dialog-component>
-                    </template>
-                </v-data-table>
+                <v-card>
+                    <v-data-table :headers="marcaHeaders" :items="marcas" :search="searchMarca" item-key="id_marca">
+                        <template v-slot:item.equipo_marca="{ item }">
+                            {{ getProductosTotal(item.id_marca) }}
+                        </template>
+                        <template v-slot:item.opciones="{ item }">
+                            <edit-marca-dialog-component :marca="item"></edit-marca-dialog-component>
+                        </template>
+                    </v-data-table>
+                </v-card>
             </v-col>
         </v-row>
     </v-container>
@@ -66,8 +68,8 @@
             ...mapActions('marca', ['fetchMarcas']),
             ...mapActions('equipo', ['fetchEquipos']),
 
-            getProductosTotal: function(id_marca) {
-                return this.equipos.filter(equipo => {
+            getProductosTotal: function (id_marca) {
+                return this.equipos.filter((equipo) => {
                     return equipo.id_marca_equipo == id_marca
                 }).length
             },

@@ -15,12 +15,21 @@
                         :rules="required"
                     ></v-text-field>
                     <v-text-field
+                        label="Código de producto"
+                        rounded
+                        filled
+                        v-model="editEquipo.codigo_producto_equipo"
+                        counter="12"
+                        maxlength="12"
+                    ></v-text-field>
+                    <v-text-field
                         label="Código de barras"
                         rounded
                         filled
                         v-model="editEquipo.codigo_barras_equipo"
                         append-icon="mdi-barcode"
-                        readonly
+                        counter="12"
+                        maxlength="12"
                     ></v-text-field>
                     <v-select
                         v-model="editEquipo.desechable"
@@ -29,7 +38,7 @@
                         :items="tipoEquipo"
                         item-text="text"
                         item-value="id"
-                        label="Tipo de equipo"
+                        label="Modo de préstamo"
                         readonly
                     ></v-select>
                     <v-select
@@ -40,7 +49,6 @@
                         item-text="nombre_marca"
                         item-value="id_marca"
                         label="Marca"
-                        readonly
                     ></v-select>
                     <v-select
                         v-model="editEquipo.id_categoria_equipo"
@@ -50,7 +58,6 @@
                         item-text="nombre_categoria"
                         item-value="id_categoria"
                         label="Categoría"
-                        readonly
                     ></v-select>
                     <v-select
                         v-model="editEquipo.id_unidad_medida_equipo"
@@ -60,7 +67,6 @@
                         item-text="nombre_unidad_medida"
                         item-value="id_unidad_medida"
                         label="Unidad de medida"
-                        readonly
                     ></v-select>
                 </v-form>
             </v-card-text>
@@ -94,10 +100,10 @@
                     { id: 1, text: 'Consumible' },
                 ],
 
-                required: [v => !!v || 'Este campo es requerido.'],
+                required: [(v) => !!v || 'Este campo es requerido.'],
                 codigoRules: [
-                    v => !!v || 'Este campo es requerido.',
-                    v => !this.existeCodigoEquipo(v) || 'Este código ya está registrado.',
+                    (v) => !!v || 'Este campo es requerido.',
+                    (v) => !this.existeCodigoEquipo(v) || 'Este código ya está registrado.',
                 ],
             }
         },
@@ -123,7 +129,7 @@
         methods: {
             ...mapActions('equipo', ['updateEquipo', 'fetchEquipos']),
 
-            triggerNuevoEquipo: async function() {
+            triggerNuevoEquipo: async function () {
                 this.loading = true
 
                 await this.updateEquipo(this.editEquipo)
@@ -134,13 +140,13 @@
                 this.closeDialog()
             },
 
-            closeDialog: function() {
+            closeDialog: function () {
                 this.$refs.nuevoEquipoForm.resetValidation()
                 this.nuevoEquipoDialog = false
             },
 
-            existeCodigoEquipo: function(codigo) {
-                if (this.equipos.some(equipo => equipo.codigo_barras_equipo == codigo)) {
+            existeCodigoEquipo: function (codigo) {
+                if (this.equipos.some((equipo) => equipo.codigo_barras_equipo == codigo)) {
                     return true
                 } else return false
             },

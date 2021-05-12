@@ -8,7 +8,7 @@
                 </div>
             </v-col>
             <v-col class="d-inline-flex">
-                <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
+                <reporte-prestamos-dialog-component></reporte-prestamos-dialog-component>
                 <new-prestamo-dialog-component></new-prestamo-dialog-component>
             </v-col>
             <v-col>
@@ -57,6 +57,9 @@
                         <template v-slot:item.updated_at="{ item }">
                             {{ getFechaRecibido(item) }}
                         </template>
+                        <template v-slot:item.valor_prestamo="{ item }">
+                            {{ parseFloat(getCostoUnitario(item.equipo.id_equipo) * item.cantidad).toFixed(2) }}
+                        </template>
                         <template v-slot:item.recibido="{ item }">
                             <v-icon v-if="item.recibido" color="success">mdi-check</v-icon>
                             <v-icon v-else-if="item.recibido == 0" color="error">mdi-minus</v-icon>
@@ -72,40 +75,6 @@
                             >
                         </template>
                     </v-data-table>
-                    <vue-html2pdf
-                        :show-layout="false"
-                        :float-layout="true"
-                        :enable-download="true"
-                        :preview-modal="false"
-                        :paginate-elements-by-height="1400"
-                        filename="personal"
-                        :pdf-quality="2"
-                        :manual-pagination="false"
-                        pdf-format="a4"
-                        pdf-orientation="landscape"
-                        pdf-content-width="800px"
-                        ref="html2Pdf"
-                    >
-                        <section slot="pdf-content">
-                            <v-data-table
-                                :headers="prestamoHeaders"
-                                :items="filteredPrestamos"
-                                :search="searchPrestamo"
-                                item-key="id_prestamo"
-                                disable-pagination
-                                hide-default-footer
-                            >
-                                <template v-slot:item.updated_at="{ item }">
-                                    {{ getFechaRecibido(item) }}
-                                </template>
-                                <template v-slot:item.recibido="{ item }">
-                                    <v-icon v-if="item.recibido" color="success">mdi-check</v-icon>
-                                    <v-icon v-else-if="item.recibido == 0" color="error">mdi-minus</v-icon>
-                                    <div v-else class="text-overline">N/A</div>
-                                </template>
-                            </v-data-table>
-                        </section>
-                    </vue-html2pdf>
                 </v-card>
             </v-col>
         </v-row>
@@ -113,14 +82,20 @@
 </template>
 <script>
     import { mapActions, mapGetters } from 'vuex'
-    import VueHtml2pdf from 'vue-html2pdf'
+    import ReportePrestamosDialogComponent from './ReportePrestamosDialogComponent.vue'
 
     export default {
+        components: {
+            ReportePrestamosDialogComponent,
+        },
+
         async mounted() {
             await this.fetchPrestamos()
             await this.fetchEquipos()
             await this.fetchPersonal()
             await this.fetchDestinos()
+            await this.fetchEntradas()
+            await this.fetchSalidas()
             this.setPrestamosEstatusChartData()
         },
 
@@ -133,6 +108,7 @@
                     { text: 'Personal', value: 'personal.nombre_personal' },
                     { text: 'Equipo', value: 'equipo.nombre_equipo' },
                     { text: 'Cantidad', value: 'cantidad' },
+                    { text: 'Valor de préstamo', value: 'valor_prestamo' },
                     { text: 'Destino', value: 'destino.nombre_destino' },
                     { text: 'Recibido', value: 'recibido', sortable: false },
                     { text: 'Opciones', value: 'opciones', sortable: false },
@@ -175,19 +151,27 @@
                 prestamos: 'getPrestamos',
             }),
 
-            filteredPrestamos: function() {
+            ...mapGetters('entrada', {
+                entradas: 'getEntradas',
+            }),
+
+            ...mapGetters('salida', {
+                salidas: 'getSalidas',
+            }),
+
+            filteredPrestamos: function () {
                 if (this.selectFiltro == 1) {
                     return this.prestamos
                 } else if (this.selectFiltro == 2) {
-                    return this.prestamos.filter(prestamo => {
+                    return this.prestamos.filter((prestamo) => {
                         return prestamo.recibido == 1
                     })
                 } else if (this.selectFiltro == 3) {
-                    return this.prestamos.filter(prestamo => {
+                    return this.prestamos.filter((prestamo) => {
                         return prestamo.recibido == 0
                     })
                 } else {
-                    return this.prestamos.filter(prestamo => {
+                    return this.prestamos.filter((prestamo) => {
                         return prestamo.recibido == null
                     })
                 }
@@ -199,8 +183,10 @@
             ...mapActions('personal', ['fetchPersonal']),
             ...mapActions('equipo', ['fetchEquipos']),
             ...mapActions('destino', ['fetchDestinos']),
+            ...mapActions('entrada', ['fetchEntradas']),
+            ...mapActions('salida', ['fetchSalidas']),
 
-            getFechaRecibido: function(prestamo) {
+            getFechaRecibido: function (prestamo) {
                 if (prestamo.equipo.desechable) {
                     return 'N/A'
                 } else if (prestamo.created_at == prestamo.updated_at) {
@@ -210,18 +196,18 @@
                 }
             },
 
-            download: function() {
+            download: function () {
                 this.$refs.html2Pdf.generatePdf()
             },
 
-            setPrestamosEstatusChartData: function() {
-                var listaPrestamosFinalizados = this.prestamos.filter(prestamo => {
+            setPrestamosEstatusChartData: function () {
+                var listaPrestamosFinalizados = this.prestamos.filter((prestamo) => {
                     return prestamo.recibido == 1
                 })
-                var listaPrestamosPendientes = this.prestamos.filter(prestamo => {
+                var listaPrestamosPendientes = this.prestamos.filter((prestamo) => {
                     return prestamo.recibido == 0
                 })
-                var listaPrestamosDesechables = this.prestamos.filter(prestamo => {
+                var listaPrestamosDesechables = this.prestamos.filter((prestamo) => {
                     return prestamo.recibido == null
                 })
                 this.prestamosStatusSeries.push(listaPrestamosFinalizados.length)
@@ -229,9 +215,48 @@
                 this.prestamosStatusSeries.push(listaPrestamosDesechables.length)
             },
 
-            triggerUpdate: async function(id_prestamo) {
+            triggerUpdate: async function (id_prestamo) {
                 await this.updatePrestamo(id_prestamo)
                 await this.fetchPrestamos()
+            },
+
+            getValorPrestamo: function (prestamo) {
+                return prestamo.cantidad * prestamo.equipo.valor_unitario
+            },
+
+            getCostoUnitario(id_equipo) {
+                var entradasPorEquipo = []
+                var salidasPorEquipo = []
+                var totalCantidad = 0
+                var totalCantidadSalidas = 0
+                var totalCosto = 0
+
+                this.entradas.forEach((entrada) => {
+                    entrada.equipos.forEach((equipo) => {
+                        if (equipo.id_equipo == id_equipo) {
+                            entradasPorEquipo.push(equipo)
+                        }
+                    })
+                })
+
+                this.salidas.forEach((salida) => {
+                    salida.equipos.forEach((equipo) => {
+                        if (equipo.id_equipo == id_equipo) {
+                            salidasPorEquipo.push(equipo)
+                        }
+                    })
+                })
+
+                entradasPorEquipo.forEach((equipo) => {
+                    totalCantidad = equipo.pivot.cantidad + totalCantidad
+                    totalCosto += equipo.pivot.costo_unitario * equipo.pivot.cantidad
+                })
+
+                salidasPorEquipo.forEach((equipo) => {
+                    totalCantidadSalidas = equipo.pivot.cantidad + totalCantidadSalidas
+                })
+
+                return (totalCosto / totalCantidad).toFixed(2)
             },
         },
     }

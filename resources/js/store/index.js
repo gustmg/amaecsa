@@ -7,6 +7,7 @@ import unidad_medida from './modules/UnidadMedida'
 import entrada from './modules/Entrada'
 import salida from './modules/Salida'
 import prestamo from './modules/Prestamo'
+import tipo_equipo from './modules/TipoEquipo'
 
 export default {
     state: {
@@ -40,5 +41,6 @@ export default {
         entrada,
         salida,
         prestamo,
+        tipo_equipo,
     },
 }

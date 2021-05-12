@@ -39,12 +39,13 @@ class EntradaController extends Controller
     {
         if($request->ajax()){
             $entrada=new Entrada;
+            $entrada->numero_vale_entrada=$request->numero_vale_entrada;
+            $entrada->id_destino_entrada=$request->id_destino_entrada;
             $entrada->save();
             
             foreach($request->entradas as $key=>$entrada_equipo){
                 $entrada->equipos()->attach($entrada_equipo["id_equipo"], ['cantidad'=>$entrada_equipo["cantidad"], 'costo_unitario'=>$entrada_equipo["costo_unitario"]]);
                 
-
                 $equipo=Equipo::find($entrada_equipo["id_equipo"]);
                 $equipo->stock_equipo=$equipo->stock_equipo+$entrada_equipo["cantidad"];
                 $equipo->save();

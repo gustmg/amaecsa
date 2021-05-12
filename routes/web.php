@@ -38,8 +38,6 @@ Route::post('fetchCategorias', 'CategoriaController@fetchCategorias')->middlewar
 Route::resource('equipos', 'EquipoController')->middleware('auth');
 Route::post('fetchEquipos', 'EquipoController@fetchEquipos')->middleware('auth');
 
-Route::post('fetchUnidadesMedida', 'UnidadMedidaController@fetchUnidadesMedida')->middleware('auth');
-
 Route::resource('entradas', 'EntradaController')->middleware('auth');
 Route::post('fetchEntradas', 'EntradaController@fetchEntradas')->middleware('auth');
 
@@ -48,6 +46,12 @@ Route::post('fetchSalidas', 'SalidaController@fetchSalidas')->middleware('auth')
 
 Route::resource('prestamos', 'PrestamoController')->middleware('auth');
 Route::post('fetchPrestamos', 'PrestamoController@fetchPrestamos')->middleware('auth');
+
+Route::resource('unidades_medida', 'UnidadMedidaController')->middleware('auth');
+Route::post('fetchUnidadesMedida', 'UnidadMedidaController@fetchUnidadesMedida')->middleware('auth');
+
+Route::resource('tipo_equipo', 'TipoEquipoController')->middleware('auth');
+Route::post('fetchTipoEquipo', 'TipoEquipoController@fetchTipoEquipo')->middleware('auth');
 
 Route::post('createBackup', function(){
     $filename="backup-".date("d-m-Y-H-i").".sql";

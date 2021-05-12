@@ -51,12 +51,12 @@
                 },
 
                 nombreCategoriaRules: [
-                    v => !!v || 'Este campo es requerido.',
-                    v => !this.existeNombreCategoria(v) || 'Este nombre ya existe.',
+                    (v) => !!v || 'Este campo es requerido.',
+                    (v) => !this.existeNombreCategoria(v) || 'Este nombre ya existe.',
                 ],
                 codigoCategoriaRules: [
-                    v => !!v || 'Este campo es requerido.',
-                    v => !this.existeCodigoCategoria(v) || 'Este nombre ya existe.',
+                    (v) => !!v || 'Este campo es requerido.',
+                    (v) => !this.existeCodigoCategoria(v) || 'Este nombre ya existe.',
                 ],
             }
         },
@@ -70,7 +70,7 @@
         methods: {
             ...mapActions('categoria', ['saveCategoria', 'fetchCategorias']),
 
-            triggerNuevoCategoria: async function() {
+            triggerNuevoCategoria: async function () {
                 this.loading = true
 
                 await this.saveCategoria(this.categoria)
@@ -78,24 +78,23 @@
 
                 this.loading = false
 
-                this.closeDialog()
-            },
-
-            closeDialog: function() {
                 this.categoria.nombre_categoria = ''
                 this.categoria.codigo_categoria = ''
                 this.$refs.nuevoCategoriaForm.resetValidation()
+            },
+
+            closeDialog: function () {
                 this.nuevoCategoriaDialog = false
             },
 
-            existeNombreCategoria: function(nombre) {
-                if (this.categorias.some(categoria => categoria.nombre_categoria == nombre)) {
+            existeNombreCategoria: function (nombre) {
+                if (this.categorias.some((categoria) => categoria.nombre_categoria == nombre)) {
                     return true
                 } else return false
             },
 
-            existeCodigoCategoria: function(codigo) {
-                if (this.categorias.some(categoria => categoria.codigo_categoria == codigo)) {
+            existeCodigoCategoria: function (codigo) {
+                if (this.categorias.some((categoria) => categoria.codigo_categoria == codigo)) {
                     return true
                 } else return false
             },

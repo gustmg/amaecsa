@@ -15,7 +15,11 @@ class CreateEntradasTable extends Migration
     {
         Schema::create('entradas', function (Blueprint $table) {
             $table->increments('id_entrada');
+            $table->string('numero_vale_entrada');
+            $table->unsignedInteger('id_destino_entrada');
             $table->timestamps();
+
+            $table->foreign('id_destino_entrada')->references('id_destino')->on('destinos');
         });
     }
 

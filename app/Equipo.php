@@ -8,7 +8,7 @@ class Equipo extends Model
 {
     protected $table = 'equipos';
     protected $primaryKey  = 'id_equipo';
-    protected $with= ['marca', 'categoria', 'unidad_medida'];
+    protected $with= ['marca', 'categoria', 'unidad_medida', 'tipo_equipo'];
 
     public function marca(){
         return $this->belongsTo('App\Marca', 'id_marca_equipo');
@@ -22,7 +22,7 @@ class Equipo extends Model
         return $this->belongsTo('App\UnidadMedida', 'id_unidad_medida_equipo');
     }
 
-    public function entradas(){
-        return $thjis->belongsToMany('App\Entrada', 'entradas_equipo', 'id_equipo', 'id_entrada');
+    public function tipo_equipo(){
+        return $this->belongsTo('App\TipoEquipo', 'id_tipo_equipo');
     }
 }

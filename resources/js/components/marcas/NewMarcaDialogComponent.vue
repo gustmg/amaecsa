@@ -39,8 +39,8 @@
                 },
 
                 required: [
-                    v => !!v || 'Este campo es requerido.',
-                    v => !this.existeMarca(v) || 'Este destino ya está registrado.',
+                    (v) => !!v || 'Este campo es requerido.',
+                    (v) => !this.existeMarca(v) || 'Este destino ya está registrado.',
                 ],
             }
         },
@@ -54,7 +54,7 @@
         methods: {
             ...mapActions('marca', ['saveMarca', 'fetchMarcas']),
 
-            triggerNuevoMarca: async function() {
+            triggerNuevoMarca: async function () {
                 this.loading = true
 
                 await this.saveMarca(this.marca)
@@ -62,17 +62,16 @@
 
                 this.loading = false
 
-                this.closeDialog()
-            },
-
-            closeDialog: function() {
                 this.marca.nombre_marca = ''
                 this.$refs.nuevoMarcaForm.resetValidation()
+            },
+
+            closeDialog: function () {
                 this.nuevoMarcaDialog = false
             },
 
-            existeMarca: function(codigo) {
-                if (this.marcas.some(marca => marca.nombre_marca == codigo)) {
+            existeMarca: function (codigo) {
+                if (this.marcas.some((marca) => marca.nombre_marca == codigo)) {
                     return true
                 } else return false
             },

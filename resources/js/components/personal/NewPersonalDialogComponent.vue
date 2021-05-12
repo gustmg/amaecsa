@@ -48,10 +48,10 @@
                     codigo_personal: '',
                 },
 
-                required: [v => !!v || 'Este campo es requerido.'],
+                required: [(v) => !!v || 'Este campo es requerido.'],
                 codigoRules: [
-                    v => !!v || 'Este campo es requerido.',
-                    v => !this.existeCodigoPersonal(v) || 'Este código ya está registrado.',
+                    (v) => !!v || 'Este campo es requerido.',
+                    (v) => !this.existeCodigoPersonal(v) || 'Este código ya está registrado.',
                 ],
             }
         },
@@ -65,7 +65,7 @@
         methods: {
             ...mapActions('personal', ['savePersonal', 'fetchPersonal']),
 
-            triggerNuevoPersonal: async function() {
+            triggerNuevoPersonal: async function () {
                 this.loading = true
 
                 await this.savePersonal(this.personal)
@@ -73,18 +73,17 @@
 
                 this.loading = false
 
-                this.closeDialog()
-            },
-
-            closeDialog: function() {
                 this.personal.nombre_personal = ''
                 this.personal.codigo_personal = ''
                 this.$refs.nuevoPersonalForm.resetValidation()
+            },
+
+            closeDialog: function () {
                 this.nuevoPersonalDialog = false
             },
 
-            existeCodigoPersonal: function(codigo) {
-                if (this.listaPersonal.some(personal => personal.codigo_personal == codigo)) {
+            existeCodigoPersonal: function (codigo) {
+                if (this.listaPersonal.some((personal) => personal.codigo_personal == codigo)) {
                     return true
                 } else return false
             },

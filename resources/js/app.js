@@ -13,10 +13,17 @@ import Vuetify from 'vuetify'
 import storeData from './store/index'
 import VueApexCharts from 'vue-apexcharts'
 import es from 'vuetify/lib/locale/es'
+import Vue from 'vue'
+import VueExcelEditor from 'vue-excel-editor'
+
+import Print from 'vue-print-nb'
+// Global instruction
+Vue.use(Print)
 
 Vue.use(Vuetify)
 Vue.use(Vuex)
 Vue.use(VueApexCharts)
+Vue.use(VueExcelEditor)
 
 Vue.component('apexchart', VueApexCharts)
 
@@ -84,6 +91,9 @@ Vue.component(
 Vue.component('prestamos-component', require('./components/prestamos/PrestamosComponent.vue').default)
 Vue.component('new-prestamo-dialog-component', require('./components/prestamos/NewPrestamoDialogComponent.vue').default)
 
+Vue.component('unidades-medida-component', require('./components/unidades_medida/UnidadesMedidaComponent.vue').default)
+
+Vue.component('tipo-equipo-component', require('./components/tipo_equipo/TipoEquipoComponent.vue').default)
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

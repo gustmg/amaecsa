@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\UnidadMedida;
+use View;
+
 
 class UnidadMedidaController extends Controller
 {
@@ -14,7 +16,7 @@ class UnidadMedidaController extends Controller
      */
     public function index()
     {
-        //
+        return View::make('unidades_medida.index');
     }
 
     public function fetchUnidadesMedida()
@@ -33,7 +35,7 @@ class UnidadMedidaController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**
@@ -44,7 +46,16 @@ class UnidadMedidaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if($request->ajax()){
+            $unidad_medida=new UnidadMedida;
+            $unidad_medida->nombre_unidad_medida=$request->nombre_unidad_medida;
+            $unidad_medida->save();
+
+            return response()->json([
+                "message" => "unidad_medida creado correctamente.",
+                "id_unidad_medida" => $unidad_medida->id_unidad_medida
+            ],200);
+        }
     }
 
     /**
@@ -78,7 +89,15 @@ class UnidadMedidaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        if($request->ajax()){
+            $unidad_medida=UnidadMedida::find($id);
+            $unidad_medida->nombre_unidad_medida=$request->nombre_unidad_medida;
+            $unidad_medida->save();
+
+            return response()->json([
+                "message" => "unidad_medida actualizada correctamente."
+            ],200);
+        }
     }
 
     /**

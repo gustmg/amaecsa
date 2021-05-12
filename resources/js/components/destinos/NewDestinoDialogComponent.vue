@@ -41,8 +41,8 @@
                 },
 
                 required: [
-                    v => !!v || 'Este campo es requerido.',
-                    v => !this.existeDestino(v) || 'Este destino ya está registrado.',
+                    (v) => !!v || 'Este campo es requerido.',
+                    (v) => !this.existeDestino(v) || 'Este destino ya está registrado.',
                 ],
             }
         },
@@ -56,7 +56,7 @@
         methods: {
             ...mapActions('destino', ['saveDestino', 'fetchDestinos']),
 
-            triggerNuevoDestino: async function() {
+            triggerNuevoDestino: async function () {
                 this.loading = true
 
                 await this.saveDestino(this.destino)
@@ -64,18 +64,17 @@
 
                 this.loading = false
 
-                this.closeDialog()
-            },
-
-            closeDialog: function() {
                 this.destino.nombre_destino = ''
                 this.destino.codigo_destino = ''
                 this.$refs.nuevoDestinoForm.resetValidation()
+            },
+
+            closeDialog: function () {
                 this.nuevoDestinoDialog = false
             },
 
-            existeDestino: function(codigo) {
-                if (this.destinos.some(destino => destino.nombre_destino == codigo)) {
+            existeDestino: function (codigo) {
+                if (this.destinos.some((destino) => destino.nombre_destino == codigo)) {
                     return true
                 } else return false
             },

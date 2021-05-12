@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container fluid>
         <v-row align="center">
             <v-col>
                 <div class="text-h6">Catálogo de equipo</div>
@@ -54,6 +54,9 @@
                         <template v-slot:item.costo_unitario="{ item }">
                             <div class="text-caption">{{ getCostoUnitario(item.id_equipo) }}</div>
                         </template>
+                        <template v-slot:item.valor_total="{ item }">
+                            <div class="text-caption">{{ getCostoTotalEquipo(item) }}</div>
+                        </template>
                         <template v-slot:item.desechable="{ item }">
                             <div v-if="item.desechable">Consumible</div>
                             <div v-else>Normal</div>
@@ -95,6 +98,9 @@
                             <template v-slot:item.costo_unitario="{ item }">
                                 <div class="text-caption">{{ getCostoUnitario(item.id_equipo) }}</div>
                             </template>
+                            <template v-slot:item.valor_total="{ item }">
+                                <div class="text-caption">{{ getCostoUnitario(item.id_equipo) }}</div>
+                            </template>
                             <template v-slot:item.desechable="{ item }">
                                 <div v-if="item.desechable">Consumible</div>
                                 <div v-else>Normal</div>
@@ -114,6 +120,7 @@
         async mounted() {
             await this.fetchEquipos()
             await this.fetchMarcas()
+            await this.fetchTipoEquipo()
             await this.fetchCategorias()
             await this.fetchUnidadesMedida()
             await this.fetchPrestamos()
@@ -126,13 +133,14 @@
             return {
                 equipoHeaders: [
                     { text: 'Código de barras', value: 'codigo_barras_equipo' },
+                    { text: 'Código de producto', value: 'codigo_producto_equipo' },
                     { text: 'Nombre', value: 'nombre_equipo' },
                     { text: 'Categoría', value: 'categoria.nombre_categoria' },
                     { text: 'Marca', value: 'marca.nombre_marca' },
                     { text: 'Stock', value: 'stock_equipo', align: 'center' },
                     { text: 'Costo unitario ($)', value: 'costo_unitario', align: 'center' },
+                    { text: 'Valor total ($)', value: 'valor_total', align: 'center' },
                     { text: 'Unidad de medida', value: 'unidad_medida.nombre_unidad_medida' },
-                    { text: 'Tipo', value: 'desechable' },
                     { text: 'Opciones', value: 'opciones' },
                 ],
 
@@ -173,17 +181,23 @@
                 salidas: 'getSalidas',
             }),
 
-            activos: function() {
+            activos: function () {
                 var activos = 0
-                this.entradas.forEach(entrada => {
+                this.entradas.forEach((entrada) => {
                     activos = activos + +this.getCostoTotal(entrada)
+                })
+
+                this.salidas.forEach((salida) => {
+                    salida.equipos.forEach((equipo) => {
+                        activos = activos - this.getCostoUnitario(equipo.id_equipo) * equipo.pivot.cantidad
+                    })
                 })
 
                 return activos.toFixed(2)
             },
 
-            filteredEquipos: function() {
-                return this.equipos.filter(equipo => {
+            filteredEquipos: function () {
+                return this.equipos.filter((equipo) => {
                     return (
                         equipo.nombre_equipo.toLowerCase().indexOf(this.searchEquipo.toLowerCase()) >= 0 ||
                         equipo.codigo_barras_equipo.toLowerCase().indexOf(this.searchEquipo.toLowerCase()) >= 0 ||
@@ -210,9 +224,11 @@
 
             ...mapActions('salida', ['fetchSalidas']),
 
-            getCantidadPrestados: function(id_equipo) {
+            ...mapActions('tipo_equipo', ['fetchTipoEquipo']),
+
+            getCantidadPrestados: function (id_equipo) {
                 var prestados = 0
-                this.prestamos.forEach(prestamo => {
+                this.prestamos.forEach((prestamo) => {
                     if (prestamo.id_equipo == id_equipo && !prestamo.recibido) {
                         prestados++
                     }
@@ -228,43 +244,43 @@
                 var totalCantidadSalidas = 0
                 var totalCosto = 0
 
-                this.entradas.forEach(entrada => {
-                    entrada.equipos.forEach(equipo => {
+                this.entradas.forEach((entrada) => {
+                    entrada.equipos.forEach((equipo) => {
                         if (equipo.id_equipo == id_equipo) {
                             entradasPorEquipo.push(equipo)
                         }
                     })
                 })
 
-                this.salidas.forEach(salida => {
-                    salida.equipos.forEach(equipo => {
+                this.salidas.forEach((salida) => {
+                    salida.equipos.forEach((equipo) => {
                         if (equipo.id_equipo == id_equipo) {
                             salidasPorEquipo.push(equipo)
                         }
                     })
                 })
 
-                entradasPorEquipo.forEach(equipo => {
+                entradasPorEquipo.forEach((equipo) => {
                     totalCantidad = equipo.pivot.cantidad + totalCantidad
                     totalCosto += equipo.pivot.costo_unitario * equipo.pivot.cantidad
                 })
 
-                salidasPorEquipo.forEach(equipo => {
+                salidasPorEquipo.forEach((equipo) => {
                     totalCantidadSalidas = equipo.pivot.cantidad + totalCantidadSalidas
                 })
 
-                return (totalCosto / (totalCantidad - totalCantidadSalidas)).toFixed(2)
+                return (totalCosto / totalCantidad).toFixed(2)
             },
 
-            setChartData: function() {
+            setChartData: function () {
                 var listaNombres = []
                 var stocks = []
 
-                this.filteredEquipos.forEach(equipo => {
+                this.filteredEquipos.forEach((equipo) => {
                     listaNombres.push(equipo.nombre_equipo)
                 })
 
-                this.filteredEquipos.forEach(equipo => {
+                this.filteredEquipos.forEach((equipo) => {
                     stocks.push(equipo.stock_equipo)
                 })
 
@@ -280,17 +296,21 @@
                 this.$refs.apex.updateSeries([{ name: 'Stock', data: stocks }])
             },
 
-            download: function() {
+            download: function () {
                 this.$refs.html2Pdf.generatePdf()
             },
 
-            getCostoTotal: function(entrada) {
+            getCostoTotal: function (entrada) {
                 var total = 0
-                entrada.equipos.forEach(equipo => {
+                entrada.equipos.forEach((equipo) => {
                     total = total + +(equipo.pivot.costo_unitario * equipo.pivot.cantidad).toFixed(2)
                 })
 
                 return total.toFixed(2)
+            },
+
+            getCostoTotalEquipo: function (equipo) {
+                return parseFloat(this.getCostoUnitario(equipo.id_equipo) * equipo.stock_equipo).toFixed(2)
             },
         },
     }

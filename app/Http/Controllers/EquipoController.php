@@ -39,9 +39,11 @@ class EquipoController extends Controller
         if($request->ajax()){
             $equipo=new Equipo;
             $equipo->nombre_equipo=$request->nombre_equipo;
+            $equipo->codigo_producto_equipo=$request->codigo_producto_equipo;
             $equipo->codigo_barras_equipo=$request->codigo_barras_equipo;
             $equipo->desechable=$request->desechable;
             $equipo->id_marca_equipo=$request->id_marca_equipo;
+            $equipo->id_tipo_equipo=$request->id_tipo_equipo;
             $equipo->id_categoria_equipo=$request->id_categoria_equipo;
             $equipo->id_unidad_medida_equipo=$request->id_unidad_medida_equipo;
             $equipo->save();
@@ -66,9 +68,11 @@ class EquipoController extends Controller
         if($request->ajax()){
             $equipo=Equipo::find($id);
             $equipo->nombre_equipo=$request->nombre_equipo;
+            $equipo->codigo_producto_equipo=$request->codigo_producto_equipo;
             $equipo->codigo_barras_equipo=$request->codigo_barras_equipo;
             $equipo->desechable=$request->desechable;
             $equipo->id_marca_equipo=$request->id_marca_equipo;
+            $equipo->id_tipo_equipo=$request->id_tipo_equipo;
             $equipo->id_categoria_equipo=$request->id_categoria_equipo;
             $equipo->id_unidad_medida_equipo=$request->id_unidad_medida_equipo;
             $equipo->save();

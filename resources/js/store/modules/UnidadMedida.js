@@ -6,7 +6,7 @@ export default {
     },
 
     getters: {
-        getUnidadesMedida: state => {
+        getUnidadesMedida: (state) => {
             return state.unidadesMedida
         },
     },
@@ -18,13 +18,31 @@ export default {
     },
 
     actions: {
-        fetchUnidadesMedida: async function({ commit }) {
+        fetchUnidadesMedida: async function ({ commit }) {
             await axios
                 .post('fetchUnidadesMedida')
-                .then(response => {
+                .then((response) => {
                     commit('SET_UNIDADES_MEDIDA', response.data.unidades_medida)
                 })
-                .catch(error => console.log(error))
+                .catch((error) => console.log(error))
+        },
+
+        saveUnidadMedida: async function ({ commit }, unidadMedida) {
+            await axios
+                .post('unidades_medida', unidadMedida)
+                .then((response) => {
+                    console.log('Ok')
+                })
+                .catch((error) => console.log(error))
+        },
+
+        updateUnidadMedida: async function ({ commit }, unidadMedida) {
+            await axios
+                .put('unidades_medida/' + unidadMedida.id_unidad_medida, unidadMedida)
+                .then((response) => {
+                    console.log('Ok')
+                })
+                .catch((error) => console.log(error))
         },
     },
 }

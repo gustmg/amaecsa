@@ -7,7 +7,25 @@
             <v-card-title>Nuevo entrada</v-card-title>
             <v-card-text>
                 <v-container>
-                    <v-row justify="center">
+                    <v-row>
+                        <v-col>
+                            <v-text-field
+                                label="Número de vale"
+                                v-model="numero_vale_entrada"
+                                rounded
+                                filled
+                            ></v-text-field>
+                            <v-select
+                                label="Destino"
+                                v-model="id_destino_entrada"
+                                rounded
+                                :items="destinos"
+                                item-value="id_destino"
+                                item-text="nombre_destino"
+                                filled
+                            ></v-select>
+                        </v-col>
+                        <v-spacer></v-spacer>
                         <v-col cols="5">
                             <v-autocomplete
                                 v-model="equiposElegidos"
@@ -113,6 +131,9 @@
                 entradaForm: false,
                 loading: false,
 
+                numero_vale_entrada: '',
+                id_destino_entrada: null,
+
                 equiposEntradaHeaders: [
                     { text: 'Eliminar', value: 'eliminar' },
                     { text: 'Código de barras', value: 'codigo_barras_equipo' },
@@ -127,7 +148,7 @@
 
                 equiposElegidos: [],
 
-                required: [v => !!v || 'Este campo es requerido.'],
+                required: [(v) => !!v || 'Este campo es requerido.'],
 
                 buscadorCodigo: '',
                 codigoNoEncontrado: false,
@@ -139,18 +160,22 @@
                 equiposEntrada: 'getEquiposEntrada',
             }),
 
-            costoTotal: function() {
+            ...mapGetters('destino', {
+                destinos: 'getDestinos',
+            }),
+
+            costoTotal: function () {
                 var total = 0
-                this.equiposElegidos.forEach(equipo => {
+                this.equiposElegidos.forEach((equipo) => {
                     total = total + +(equipo.costo_unitario * equipo.cantidad).toFixed(2)
                 })
 
                 return total.toFixed(2)
             },
 
-            validEntrada: function() {
+            validEntrada: function () {
                 if (this.equiposElegidos.length > 0) {
-                    if (this.equiposElegidos.some(equipo => equipo.cantidad == 0)) {
+                    if (this.equiposElegidos.some((equipo) => equipo.cantidad == 0)) {
                         return false
                     } else return true
                 } else {
@@ -162,30 +187,32 @@
         methods: {
             ...mapActions('entrada', ['saveEntrada', 'fetchEntradas']),
 
-            triggerNuevoEntrada: async function() {
+            triggerNuevoEntrada: async function () {
                 this.loading = true
 
                 await this.saveEntrada({
+                    numero_vale_entrada: this.numero_vale_entrada,
+                    id_destino_entrada: this.id_destino_entrada,
                     entradas: this.equiposElegidos,
                 })
 
                 window.location.reload()
             },
 
-            closeDialog: function() {
+            closeDialog: function () {
                 this.equiposElegidos = []
                 this.nuevoEntradaDialog = false
             },
 
-            quitaEntrada: function(item) {
+            quitaEntrada: function (item) {
                 var index = this.equiposElegidos.indexOf(item)
                 this.equiposElegidos.splice(index, 1)
             },
 
             agregaEquipo(event) {
-                if (this.equiposEntrada.some(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
-                    if (!this.equiposElegidos.some(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
-                        var x = this.equiposEntrada.find(equipo => equipo.codigo_barras_equipo == this.buscadorCodigo)
+                if (this.equiposEntrada.some((equipo) => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
+                    if (!this.equiposElegidos.some((equipo) => equipo.codigo_barras_equipo == this.buscadorCodigo)) {
+                        var x = this.equiposEntrada.find((equipo) => equipo.codigo_barras_equipo == this.buscadorCodigo)
                         this.equiposElegidos.push(x)
                     }
                 } else {

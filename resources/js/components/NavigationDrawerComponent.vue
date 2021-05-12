@@ -1,6 +1,6 @@
 <template>
     <v-navigation-drawer expand-on-hover app color="secondary">
-        <v-list-item link href="/home" class="px-2">
+        <v-list-item dense link href="/home" class="px-2">
             <v-list-item-avatar>
                 <v-icon>mdi-home</v-icon>
             </v-list-item-avatar>
@@ -8,7 +8,7 @@
                 <v-list-item-title>Inicio</v-list-item-title>
             </v-list-item-content>
         </v-list-item>
-        <v-list-item link href="/personal" class="px-2">
+        <v-list-item dense link href="/personal" class="px-2">
             <v-list-item-avatar>
                 <v-icon>mdi-account-group</v-icon>
             </v-list-item-avatar>
@@ -16,7 +16,7 @@
                 <v-list-item-title>Personal</v-list-item-title>
             </v-list-item-content>
         </v-list-item>
-        <v-list-item link href="/destinos" class="px-2">
+        <v-list-item dense link href="/destinos" class="px-2">
             <v-list-item-avatar>
                 <v-icon>mdi-map-marker</v-icon>
             </v-list-item-avatar>
@@ -24,7 +24,7 @@
                 <v-list-item-title>Destinos</v-list-item-title>
             </v-list-item-content>
         </v-list-item>
-        <v-list-item link href="/prestamos" class="px-2">
+        <v-list-item dense link href="/prestamos" class="px-2">
             <v-list-item-avatar>
                 <v-icon>mdi-ticket-account</v-icon>
             </v-list-item-avatar>
@@ -32,7 +32,7 @@
                 <v-list-item-title>Préstamos</v-list-item-title>
             </v-list-item-content>
         </v-list-item>
-        <v-list>
+        <v-list dense>
             <v-list-item-group>
                 <v-list-item link href="/equipos" class="px-2">
                     <v-list-item-avatar>
@@ -58,9 +58,25 @@
                         <v-list-item-title>Categorías</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
+                <v-list-item link href="/unidades_medida" class="px-2">
+                    <v-list-item-avatar>
+                        <v-icon>mdi-scale-balance</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                        <v-list-item-title>Unidades de medida</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item link href="/tipo_equipo" class="px-2">
+                    <v-list-item-avatar>
+                        <v-icon>mdi-scale-balance</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                        <v-list-item-title>Tipos de equipo</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
             </v-list-item-group>
         </v-list>
-        <v-list>
+        <v-list dense>
             <v-list-item-group>
                 <v-list-item link href="/entradas" class="px-2">
                     <v-list-item-avatar>
@@ -90,7 +106,6 @@
                 </v-list-item-content>
             </v-list-item>
         </template>
-        
     </v-navigation-drawer>
 </template>
 <script>
@@ -102,16 +117,14 @@
             }),
         },
 
-        data(){
+        data() {
             return {
-                snackbar:false
+                snackbar: false,
             }
         },
 
         methods: {
             ...mapMutations(['HIDE_DRAWER']),
-
-            
         },
     }
 </script>

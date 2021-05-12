@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container fluid>
         <v-row align="center">
             <v-col cols="4">
                 <div class="text-h6">Catálogo de categorías ({{ categorias.length }} registradas)</div>
@@ -19,19 +19,21 @@
         </v-row>
         <v-row>
             <v-col cols="12">
-                <v-data-table
-                    :headers="categoriaHeaders"
-                    :items="categorias"
-                    :search="searchCategoria"
-                    item-key="id_categoria"
-                >
-                    <template v-slot:item.equipo_categoria="{ item }">
-                        {{ getProductosTotal(item.id_categoria) }}
-                    </template>
-                    <template v-slot:item.opciones="{ item }">
-                        <edit-categoria-dialog-component :categoria="item"></edit-categoria-dialog-component>
-                    </template>
-                </v-data-table>
+                <v-card>
+                    <v-data-table
+                        :headers="categoriaHeaders"
+                        :items="categorias"
+                        :search="searchCategoria"
+                        item-key="id_categoria"
+                    >
+                        <template v-slot:item.equipo_categoria="{ item }">
+                            {{ getProductosTotal(item.id_categoria) }}
+                        </template>
+                        <template v-slot:item.opciones="{ item }">
+                            <edit-categoria-dialog-component :categoria="item"></edit-categoria-dialog-component>
+                        </template>
+                    </v-data-table>
+                </v-card>
             </v-col>
         </v-row>
     </v-container>
@@ -72,8 +74,8 @@
             ...mapActions('categoria', ['fetchCategorias']),
             ...mapActions('equipo', ['fetchEquipos']),
 
-            getProductosTotal: function(id_categoria) {
-                return this.equipos.filter(equipo => {
+            getProductosTotal: function (id_categoria) {
+                return this.equipos.filter((equipo) => {
                     return equipo.id_categoria_equipo == id_categoria
                 }).length
             },
