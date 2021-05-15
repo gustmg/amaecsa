@@ -34,7 +34,7 @@
             </v-col>
         </v-row>
         <v-row>
-            <v-col cols="4" offset="4">
+            <v-col cols="4" offset="2">
                 <v-card>
                     <apexchart
                         ref="apex"
@@ -43,6 +43,14 @@
                         :options="prestamosStatusOptions"
                         :series="prestamosStatusSeries"
                     ></apexchart>
+                </v-card>
+            </v-col>
+            <v-col cols="4">
+                <v-card align="center" height="100%">
+                    <v-card-title class="justify-center">Valor total de equipo prestado</v-card-title>
+                    <v-card-text>
+                        <div class="text-h5 font-weight-black">$ {{ totalPrestado }}</div>
+                    </v-card-text>
                 </v-card>
             </v-col>
             <v-col cols="12">
@@ -176,6 +184,18 @@
                     })
                 }
             },
+
+            totalPrestado: function(){
+                var totalPrestado=0
+
+                this.prestamos.forEach(prestamo=>{
+                    if(prestamo.equipo.desechable==0 && !prestamo.recibido){
+                        totalPrestado+= +this.getCostoUnitario(prestamo.equipo.id_equipo)
+                    }
+                })
+
+                return totalPrestado.toFixed(2)
+            }
         },
 
         methods: {
@@ -218,6 +238,7 @@
             triggerUpdate: async function (id_prestamo) {
                 await this.updatePrestamo(id_prestamo)
                 await this.fetchPrestamos()
+                window.location.reload()
             },
 
             getValorPrestamo: function (prestamo) {

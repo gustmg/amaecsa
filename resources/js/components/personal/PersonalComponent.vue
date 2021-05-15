@@ -5,7 +5,7 @@
                 <div class="text-h6">Catálogo de personal ({{ personal.length }} registrados)</div>
             </v-col>
             <v-col class="d-inline-flex">
-                <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
+                <reporte-personal-dialog-component></reporte-personal-dialog-component>
                 <new-personal-dialog-component></new-personal-dialog-component>
             </v-col>
             <v-col>
@@ -46,36 +46,6 @@
                             <edit-personal-dialog-component :personal="item"></edit-personal-dialog-component>
                         </template>
                     </v-data-table>
-                    <vue-html2pdf
-                        :show-layout="false"
-                        :float-layout="true"
-                        :enable-download="true"
-                        :preview-modal="false"
-                        :paginate-elements-by-height="1400"
-                        filename="personal"
-                        :pdf-quality="2"
-                        :manual-pagination="false"
-                        pdf-format="a4"
-                        pdf-orientation="landscape"
-                        pdf-content-width="800px"
-                        ref="html2Pdf"
-                    >
-                        <section slot="pdf-content">
-                            <v-data-table
-                                :headers="personalHeaders"
-                                :items="personal"
-                                :search="searchPersonal"
-                                item-key="id_personal"
-                            >
-                                <template v-slot:item.prestamos_realizados="{ item }">
-                                    {{ getPrestamosRealizados(item.id_personal) }}
-                                </template>
-                                <template v-slot:item.prestamos_pendientes="{ item }">
-                                    {{ getPrestamosPendientes(item.id_personal) }}
-                                </template>
-                            </v-data-table>
-                        </section>
-                    </vue-html2pdf>
                 </v-card>
             </v-col>
         </v-row>
@@ -83,9 +53,13 @@
 </template>
 <script>
     import { mapActions, mapGetters } from 'vuex'
-    import VueHtml2pdf from 'vue-html2pdf'
+    import ReportePersonalDialogComponent from './ReportePersonalDialogComponent.vue'
 
     export default {
+        components: {
+            ReportePersonalDialogComponent
+        },
+
         async mounted() {
             await this.fetchPersonal()
             await this.fetchPrestamos()

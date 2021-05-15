@@ -115,7 +115,7 @@
             descargaReporte: function () {
                 const format = 'xlsx'
                 const exportSelectedOnly = false
-                const filename = 'test'
+                const filename = 'reporte_entradas'
                 this.$refs.report.exportTable(format, exportSelectedOnly, filename)
             },
         },

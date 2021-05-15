@@ -64,7 +64,6 @@
                                         width="80px"
                                         field="valorPrestamo"
                                         label="Valor de préstamo ($)"
-                                        summary="sum"
                                     ></vue-excel-column>
                                 </vue-excel-editor>
                             </div>
@@ -138,7 +137,7 @@
             descargaReporte: function () {
                 const format = 'xlsx'
                 const exportSelectedOnly = false
-                const filename = 'test'
+                const filename = 'reporte_prestamos'
                 this.$refs.report.exportTable(format, exportSelectedOnly, filename)
             },
 

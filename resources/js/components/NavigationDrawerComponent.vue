@@ -68,7 +68,7 @@
                 </v-list-item>
                 <v-list-item link href="/tipo_equipo" class="px-2">
                     <v-list-item-avatar>
-                        <v-icon>mdi-scale-balance</v-icon>
+                        <v-icon>mdi-format-list-bulleted-type</v-icon>
                     </v-list-item-avatar>
                     <v-list-item-content>
                         <v-list-item-title>Tipos de equipo</v-list-item-title>

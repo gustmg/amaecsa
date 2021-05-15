@@ -5,7 +5,7 @@
                 <div class="text-h6">Catálogo de equipo</div>
             </v-col>
             <v-col class="d-inline-flex">
-                <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
+                <reporte-equipos-dialog-component></reporte-equipos-dialog-component>
                 <new-equipo-dialog-component></new-equipo-dialog-component>
             </v-col>
             <v-col>
@@ -66,57 +66,19 @@
                         </template>
                     </v-data-table>
                 </v-card>
-                <vue-html2pdf
-                    :show-layout="false"
-                    :float-layout="true"
-                    :enable-download="true"
-                    :preview-modal="false"
-                    :paginate-elements-by-height="1400"
-                    filename="equipos"
-                    :pdf-quality="2"
-                    :manual-pagination="false"
-                    pdf-format="a4"
-                    pdf-orientation="landscape"
-                    pdf-content-width="800px"
-                    ref="html2Pdf"
-                >
-                    <section slot="pdf-content">
-                        <v-data-table
-                            :headers="equipoHeaders"
-                            :items="equipos"
-                            :search="searchEquipo"
-                            item-key="id_equipo"
-                        >
-                            <template v-slot:item.stock_equipo="{ item }">
-                                <div align="center">
-                                    <div>{{ item.stock_equipo }}</div>
-                                    <div v-if="!item.desechable" class="text-caption">
-                                        ({{ getCantidadPrestados(item.id_equipo) }} prestados)
-                                    </div>
-                                </div>
-                            </template>
-                            <template v-slot:item.costo_unitario="{ item }">
-                                <div class="text-caption">{{ getCostoUnitario(item.id_equipo) }}</div>
-                            </template>
-                            <template v-slot:item.valor_total="{ item }">
-                                <div class="text-caption">{{ getCostoUnitario(item.id_equipo) }}</div>
-                            </template>
-                            <template v-slot:item.desechable="{ item }">
-                                <div v-if="item.desechable">Consumible</div>
-                                <div v-else>Normal</div>
-                            </template>
-                        </v-data-table>
-                    </section>
-                </vue-html2pdf>
             </v-col>
         </v-row>
     </v-container>
 </template>
 <script>
     import { mapActions, mapGetters } from 'vuex'
-    import VueHtml2pdf from 'vue-html2pdf'
+    import ReporteEquiposDialogComponent from './ReporteEquiposDialogComponent.vue'
 
     export default {
+        components:{
+            ReporteEquiposDialogComponent
+        },
+
         async mounted() {
             await this.fetchEquipos()
             await this.fetchMarcas()
@@ -183,14 +145,17 @@
 
             activos: function () {
                 var activos = 0
-                this.entradas.forEach((entrada) => {
-                    activos = activos + +this.getCostoTotal(entrada)
-                })
+                // this.entradas.forEach((entrada) => {
+                //     activos = activos + +this.getCostoTotal(entrada)
+                // })
 
-                this.salidas.forEach((salida) => {
-                    salida.equipos.forEach((equipo) => {
-                        activos = activos - this.getCostoUnitario(equipo.id_equipo) * equipo.pivot.cantidad
-                    })
+                // this.salidas.forEach((salida) => {
+                //     salida.equipos.forEach((equipo) => {
+                //         activos = activos - this.getCostoUnitario(equipo.id_equipo) * equipo.pivot.cantidad
+                //     })
+                // })
+                this.equipos.forEach(equipo=>{
+                    activos+= +this.getCostoTotalEquipo(equipo)
                 })
 
                 return activos.toFixed(2)

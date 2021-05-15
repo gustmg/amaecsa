@@ -5,7 +5,7 @@
                 <div class="text-h6">Catálogo de destinos ({{ destinos.length }} registrados)</div>
             </v-col>
             <v-col class="d-inline-flex">
-                <v-btn v-on:click="download()" class="mx-2" color="accent">Descargar tabla</v-btn>
+                <reporte-destino-dialog-component></reporte-destino-dialog-component>
                 <new-destino-dialog-component></new-destino-dialog-component>
             </v-col>
             <v-col>
@@ -47,45 +47,19 @@
                         </template>
                     </v-data-table>
                 </v-card>
-                <vue-html2pdf
-                    :show-layout="false"
-                    :float-layout="true"
-                    :enable-download="true"
-                    :preview-modal="false"
-                    :paginate-elements-by-height="1400"
-                    filename="destinos"
-                    :pdf-quality="2"
-                    :manual-pagination="false"
-                    pdf-format="a4"
-                    pdf-orientation="landscape"
-                    pdf-content-width="800px"
-                    ref="html2Pdf"
-                >
-                    <section slot="pdf-content">
-                        <v-data-table
-                            :headers="destinoHeaders"
-                            :items="destinos"
-                            :search="searchDestino"
-                            item-key="id_destino"
-                        >
-                            <template v-slot:item.prestamos_realizados="{ item }">
-                                {{ getPrestamosRealizados(item.id_destino) }}
-                            </template>
-                            <template v-slot:item.prestamos_pendientes="{ item }">
-                                {{ getPrestamosPendientes(item.id_destino) }}
-                            </template>
-                        </v-data-table>
-                    </section>
-                </vue-html2pdf>
             </v-col>
         </v-row>
     </v-container>
 </template>
 <script>
     import { mapActions, mapGetters } from 'vuex'
-    import VueHtml2pdf from 'vue-html2pdf'
+    import ReporteDestinoDialogComponent from './ReporteDestinoDialogComponent.vue'
 
     export default {
+        components: {
+            ReporteDestinoDialogComponent
+        },
+
         async mounted() {
             await this.fetchDestinos()
             await this.fetchPrestamos()
