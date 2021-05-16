@@ -111,7 +111,7 @@
             </v-card-text>
             <v-card-actions>
                 <v-btn text v-on:click="closeDialog()">Cancelar</v-btn>
-                <v-btn v-on:click="triggerNuevoEntrada()" :disabled="!validEntrada" color="accent"
+                <v-btn v-on:click="triggerNuevoEntrada()" :disabled="!validEntrada || loading" color="accent"
                     >Registrar entrada</v-btn
                 >
             </v-card-actions>

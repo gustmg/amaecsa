@@ -15,6 +15,6 @@ class Entrada extends Model
     }
 
     public function destino(){
-        return $this->hasOne('App\Destino', 'id_destino');
+        return $this->belongsTo('App\Destino', 'id_destino_entrada');
     }
 }

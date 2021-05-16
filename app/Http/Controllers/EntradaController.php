@@ -53,7 +53,7 @@ class EntradaController extends Controller
 
             return response()->json([
                 "message" => "Entrada creada correctamente.",
-                "id_entrada" => $entrada->id_entrada
+                "id_entrada" => $entrada
             ],200);
         }
     }
