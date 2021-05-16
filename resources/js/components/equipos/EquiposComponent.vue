@@ -75,8 +75,8 @@
     import ReporteEquiposDialogComponent from './ReporteEquiposDialogComponent.vue'
 
     export default {
-        components:{
-            ReporteEquiposDialogComponent
+        components: {
+            ReporteEquiposDialogComponent,
         },
 
         async mounted() {
@@ -154,8 +154,8 @@
                 //         activos = activos - this.getCostoUnitario(equipo.id_equipo) * equipo.pivot.cantidad
                 //     })
                 // })
-                this.equipos.forEach(equipo=>{
-                    activos+= +this.getCostoTotalEquipo(equipo)
+                this.equipos.forEach((equipo) => {
+                    activos += +this.getCostoTotalEquipo(equipo)
                 })
 
                 return activos.toFixed(2)
@@ -225,16 +225,22 @@
                     })
                 })
 
-                entradasPorEquipo.forEach((equipo) => {
-                    totalCantidad = equipo.pivot.cantidad + totalCantidad
-                    totalCosto += equipo.pivot.costo_unitario * equipo.pivot.cantidad
-                })
+                if (entradasPorEquipo.length > 0) {
+                    entradasPorEquipo.forEach((equipo) => {
+                        totalCantidad = equipo.pivot.cantidad + totalCantidad
+                        totalCosto += equipo.pivot.costo_unitario * equipo.pivot.cantidad
+                    })
+                }
 
-                salidasPorEquipo.forEach((equipo) => {
-                    totalCantidadSalidas = equipo.pivot.cantidad + totalCantidadSalidas
-                })
+                if (salidasPorEquipo.length > 0) {
+                    salidasPorEquipo.forEach((equipo) => {
+                        totalCantidadSalidas = equipo.pivot.cantidad + totalCantidadSalidas
+                    })
+                }
 
-                return (totalCosto / totalCantidad).toFixed(2)
+                if (totalCosto != 0) {
+                    return (totalCosto / totalCantidad).toFixed(2)
+                } else return 0
             },
 
             setChartData: function () {
