@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="active" width="95%">
+    <v-dialog v-model="active" width="480">
         <template v-slot:activator="{ on, attrs }">
             <v-btn color="accent" class="mx-2" v-on="on" v-bind="attrs">Reportes</v-btn>
         </template>
@@ -9,43 +9,13 @@
                 <v-container fluid>
                     <v-row>
                         <v-col align="center">
-                            <vue-excel-editor v-model="equipoReporte" ref="report" filter-row readonly>
-                                <vue-excel-column
-                                    width="64px"
-                                    field="codigoBarras"
-                                    label="Código de barras"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="80px"
-                                    field="codigoProducto"
-                                    label="Código de producto"
-                                ></vue-excel-column>
-                                <vue-excel-column width="160px" field="nombreEquipo" label="Equipo"></vue-excel-column>
-                                <vue-excel-column width="80px" field="categoria" label="Categoría"></vue-excel-column>
-                                <vue-excel-column width="80px" field="tipo" label="Tipo"></vue-excel-column>
-                                <vue-excel-column width="160px" field="marca" label="Marca"></vue-excel-column>
-                                <vue-excel-column width="80px" field="stock" label="Stock"></vue-excel-column>
-                                <vue-excel-column
-                                    width="160px"
-                                    field="unidadMedida"
-                                    label="Unidad de medida"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="80px"
-                                    field="costoUnitario"
-                                    label="Costo Unitario"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="160px"
-                                    field="valorTotal"
-                                    label="Valor total"
-                                ></vue-excel-column>
-                            </vue-excel-editor>
-                        </v-col>
-                    </v-row>
-                    <v-row justify="center">
-                        <v-col align="center">
-                            <v-btn @click="descargaReporte()" class="mt-4" color="accent">Descargar</v-btn>
+                            <div class="text-subtitle-1">Reporte generado</div>
+                            <xlsx-workbook>
+                                <xlsx-sheet :collection="excelEquipos" :key="sheets.name" :sheet-name="sheets.name" />
+                                <xlsx-download filename="Reporte de equipos.xlsx">
+                                    <v-btn color="primary">Descargar reporte</v-btn>
+                                </xlsx-download>
+                            </xlsx-workbook>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -55,14 +25,25 @@
 </template>
 <script>
     import { mapGetters } from 'vuex'
+    import XlsxWorkbook from 'vue-xlsx/dist/components/XlsxWorkbook'
+    import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
+    import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
 
     export default {
+        components: {
+            XlsxWorkbook,
+            XlsxSheet,
+            XlsxDownload,
+        },
+
         data() {
             return {
                 active: false,
 
                 searchFechaMenu: false,
                 date: [],
+
+                sheets: [{ name: 'Equipos' }],
             }
         },
 
@@ -83,39 +64,54 @@
                 salidas: 'getSalidas',
             }),
 
-            equipoReporte: function () {
-                var equipoReporte = []
+            filteredEquipos() {},
 
-                if (this.equipos.length > 0) {
-                    this.equipos.forEach((equipo) => {
-                        equipoReporte.push({
-                            codigoBarras: equipo.codigo_barras_equipo,
-                            codigoProducto: equipo.codigo_producto_equipo,
-                            nombreEquipo: equipo.nombre_equipo,
-                            categoria: equipo.categoria.nombre_categoria,
-                            tipo: equipo.tipo_equipo.nombre_tipo_equipo,
-                            marca: equipo.marca.nombre_marca,
-                            stock: equipo.stock_equipo,
-                            unidadMedida: equipo.unidad_medida.nombre_unidad_medida,
-                            stockPrestados: '',
-                            costoUnitario: this.getCostoUnitario(equipo.id_equipo),
-                            valorTotal: this.getCostoTotalEquipo(equipo),
-                        })
+            excelEquipos() {
+                var excel = []
+
+                this.equipos.forEach((equipo) => {
+                    excel.push({
+                        'Código de barras': equipo.codigo_barras_equipo,
+                        'Código de producto': equipo.codigo_producto_equipo,
+                        Nombre: equipo.nombre_equipo,
+                        Categoría: equipo.categoria.nombre_categoria,
+                        Tipo: equipo.tipo_equipo.nombre_tipo_equipo,
+                        Marca: equipo.marca.nombre_marca,
+                        Stock: equipo.stock_equipo,
+                        'Unidad de medida': equipo.unidad_medida.nombre_unidad_medida,
+                        'Costo unitario': this.getCostoUnitario(equipo.id_equipo),
+                        'Valor total': this.getCostoTotalEquipo(equipo),
                     })
-                }
+                })
 
-                return equipoReporte
+                excel.push({
+                    'Código de barras': '',
+                    'Código de producto': '',
+                    Nombre: '',
+                    Categoría: '',
+                    Tipo: '',
+                    Marca: '',
+                    Stock: '',
+                    'Unidad de medida': '',
+                    'Costo unitario': 'TOTAL',
+                    'Valor total': this.activos,
+                })
+
+                return excel
+            },
+
+            activos: function () {
+                var activos = 0
+
+                this.equipos.forEach((equipo) => {
+                    activos += +this.getCostoTotalEquipo(equipo)
+                })
+
+                return activos.toFixed(2)
             },
         },
 
         methods: {
-            descargaReporte: function () {
-                const format = 'xlsx'
-                const exportSelectedOnly = false
-                const filename = 'reporte_equipos'
-                this.$refs.report.exportTable(format, exportSelectedOnly, filename)
-            },
-
             getCostoUnitario(id_equipo) {
                 var entradasPorEquipo = []
                 var salidasPorEquipo = []
@@ -148,13 +144,12 @@
                     totalCantidadSalidas = equipo.pivot.cantidad + totalCantidadSalidas
                 })
 
-                return (totalCosto / totalCantidad).toFixed(2)
+                return isNaN((totalCosto / totalCantidad).toFixed(2)) ? 0.0 : (totalCosto / totalCantidad).toFixed(2)
             },
 
             getCostoTotalEquipo: function (equipo) {
                 return parseFloat(this.getCostoUnitario(equipo.id_equipo) * equipo.stock_equipo).toFixed(2)
             },
-
         },
     }
 </script>

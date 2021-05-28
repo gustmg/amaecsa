@@ -9,25 +9,13 @@
                 <v-container fluid>
                     <v-row>
                         <v-col align="center">
-                            <vue-excel-editor v-model="personalReporte" ref="report" filter-row readonly>
-                                <vue-excel-column
-                                    width="64px"
-                                    field="codigoPersonal"
-                                    label="Código de personal"
-                                ></vue-excel-column>
-                                <vue-excel-column width="80px" field="nombrePersonal" label="Nombre"></vue-excel-column>
-                                <vue-excel-column
-                                    width="80px"
-                                    field="prestamosRealizados"
-                                    label="Préstamos realizados"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="80px"
-                                    field="prestamosPendientes"
-                                    label="Préstamos pendientes"
-                                ></vue-excel-column>
-                            </vue-excel-editor>
-                            <v-btn @click="descargaReporte()" class="mt-4" color="accent">Descargar</v-btn>
+                            <div class="text-subtitle-1">Reporte generado</div>
+                            <xlsx-workbook>
+                                <xlsx-sheet :collection="excelPrestamos" :key="sheets.name" :sheet-name="sheets.name" />
+                                <xlsx-download filename="Reporte de personal.xlsx">
+                                    <v-btn color="primary">Descargar reporte</v-btn>
+                                </xlsx-download>
+                            </xlsx-workbook>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -37,14 +25,25 @@
 </template>
 <script>
     import { mapGetters } from 'vuex'
+    import XlsxWorkbook from 'vue-xlsx/dist/components/XlsxWorkbook'
+    import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
+    import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
 
     export default {
+        components: {
+            XlsxWorkbook,
+            XlsxSheet,
+            XlsxDownload,
+        },
+
         data() {
             return {
                 active: false,
 
                 searchFechaMenu: false,
                 date: [],
+
+                sheets: [{ name: 'Personal' }],
             }
         },
 
@@ -57,40 +56,31 @@
                 prestamos: 'getPrestamos',
             }),
 
-            personalReporte: function () {
-                var personalReporte = []
+            excelPrestamos() {
+                var excel = []
 
-                if (this.personal.length > 0) {
-                    this.personal.forEach((personal) => {
-                        personalReporte.push({
-                                codigoPersonal: personal.codigo_personal,
-                                nombrePersonal: personal.nombre_personal,
-                                prestamosRealizados: this.getPrestamosRealizados(personal.id_personal),
-                                prestamosPendientes: this.getPrestamosPendientes(personal.id_personal),
-                            })
+                this.personal.forEach((persona) => {
+                    excel.push({
+                        'Código personal': persona.codigo_personal,
+                        Nombre: persona.nombre_personal,
+                        'Préstamos realizados': this.getPrestamosRealizados(persona.id_personal),
+                        'Préstamos pendientes': this.getPrestamosPendientes(persona.id_personal),
                     })
-                }
+                })
 
-                return personalReporte
+                return excel
             },
         },
 
         methods: {
-            descargaReporte: function () {
-                const format = 'xlsx'
-                const exportSelectedOnly = false
-                const filename = 'reporte_personal'
-                this.$refs.report.exportTable(format, exportSelectedOnly, filename)
-            },
-
-            getPrestamosRealizados: function(id_personal) {
-                return this.prestamos.filter(prestamo => {
+            getPrestamosRealizados: function (id_personal) {
+                return this.prestamos.filter((prestamo) => {
                     return prestamo.id_personal == id_personal
                 }).length
             },
 
-            getPrestamosPendientes: function(id_personal) {
-                return this.prestamos.filter(prestamo => {
+            getPrestamosPendientes: function (id_personal) {
+                return this.prestamos.filter((prestamo) => {
                     return prestamo.id_personal == id_personal && prestamo.recibido == 0
                 }).length
             },

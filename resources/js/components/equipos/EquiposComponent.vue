@@ -63,20 +63,43 @@
                         </template>
                         <template v-slot:item.opciones="{ item }">
                             <edit-equipo-dialog-component :equipo="item"></edit-equipo-dialog-component>
+                            <v-btn icon @click="generateReport(item.codigo_barras_equipo)"
+                                ><v-icon>mdi-barcode</v-icon></v-btn
+                            >
                         </template>
                     </v-data-table>
                 </v-card>
             </v-col>
         </v-row>
+        <vue-html2pdf
+            :show-layout="false"
+            :float-layout="true"
+            :enable-download="true"
+            :preview-modal="false"
+            :paginate-elements-by-height="1400"
+            filename="hee hee"
+            :pdf-quality="2"
+            :manual-pagination="false"
+            pdf-format="a4"
+            pdf-orientation="landscape"
+            pdf-content-width="800px"
+            ref="html2Pdf"
+        >
+            <section slot="pdf-content">
+                <barcode :value="selectedCodigo"> Ingrese código de barras. </barcode>
+            </section>
+        </vue-html2pdf>
     </v-container>
 </template>
 <script>
     import { mapActions, mapGetters } from 'vuex'
     import ReporteEquiposDialogComponent from './ReporteEquiposDialogComponent.vue'
+    import VueHtml2pdf from 'vue-html2pdf'
 
     export default {
         components: {
             ReporteEquiposDialogComponent,
+            VueHtml2pdf,
         },
 
         async mounted() {
@@ -123,6 +146,8 @@
                         data: [],
                     },
                 ],
+
+                selectedCodigo: '',
             }
         },
 
@@ -145,15 +170,7 @@
 
             activos: function () {
                 var activos = 0
-                // this.entradas.forEach((entrada) => {
-                //     activos = activos + +this.getCostoTotal(entrada)
-                // })
 
-                // this.salidas.forEach((salida) => {
-                //     salida.equipos.forEach((equipo) => {
-                //         activos = activos - this.getCostoUnitario(equipo.id_equipo) * equipo.pivot.cantidad
-                //     })
-                // })
                 this.equipos.forEach((equipo) => {
                     activos += +this.getCostoTotalEquipo(equipo)
                 })
@@ -282,6 +299,11 @@
 
             getCostoTotalEquipo: function (equipo) {
                 return parseFloat(this.getCostoUnitario(equipo.id_equipo) * equipo.stock_equipo).toFixed(2)
+            },
+
+            generateReport(codigo) {
+                this.selectedCodigo = codigo
+                this.$refs.html2Pdf.generatePdf()
             },
         },
     }

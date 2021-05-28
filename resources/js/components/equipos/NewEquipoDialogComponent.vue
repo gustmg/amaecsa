@@ -5,7 +5,7 @@
         </template>
         <v-card>
             <v-card-title>Nuevo equipo</v-card-title>
-            <v-card-text>
+            <v-card-text align="center">
                 <v-form v-model="nuevoEquipoForm" ref="nuevoEquipoForm">
                     <v-text-field
                         label="Nombre"
@@ -33,6 +33,26 @@
                         counter="12"
                         maxlength="12"
                     ></v-text-field>
+                    <barcode :value="equipo.codigo_barras_equipo"> Ingrese código de barras. </barcode>
+                    <v-btn text class="mb-2" @click="generateReport()">Descargar código</v-btn>
+                    <vue-html2pdf
+                        :show-layout="false"
+                        :float-layout="true"
+                        :enable-download="true"
+                        :preview-modal="false"
+                        :paginate-elements-by-height="1400"
+                        filename="hee hee"
+                        :pdf-quality="2"
+                        :manual-pagination="false"
+                        pdf-format="a4"
+                        pdf-orientation="landscape"
+                        pdf-content-width="800px"
+                        ref="html2Pdf"
+                    >
+                        <section slot="pdf-content">
+                            <barcode :value="equipo.codigo_barras_equipo"> Ingrese código de barras. </barcode>
+                        </section>
+                    </vue-html2pdf>
                     <v-select
                         v-model="equipo.desechable"
                         rounded
@@ -93,8 +113,13 @@
 </template>
 <script>
     import { mapActions, mapGetters } from 'vuex'
+    import VueHtml2pdf from 'vue-html2pdf'
 
     export default {
+        components: {
+            VueHtml2pdf,
+        },
+
         data() {
             return {
                 nuevoEquipoDialog: false,
@@ -178,6 +203,10 @@
                 if (this.equipos.some((equipo) => equipo.codigo_barras_equipo == codigo)) {
                     return true
                 } else return false
+            },
+
+            generateReport() {
+                this.$refs.html2Pdf.generatePdf()
             },
         },
     }

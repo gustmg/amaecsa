@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="active" width="95%">
+    <v-dialog v-model="active" width="480">
         <template v-slot:activator="{ on, attrs }">
             <v-btn color="accent" class="mx-2" v-on="on" v-bind="attrs">Reportes</v-btn>
         </template>
@@ -9,53 +9,34 @@
                 <v-container fluid>
                     <v-row>
                         <v-col align="center">
-                            <vue-excel-editor v-model="entradasEquipo" ref="report" filter-row readonly>
-                                <vue-excel-column
-                                    width="64px"
-                                    field="folioEntrada"
-                                    label="Folio de entrada"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="80px"
-                                    field="numeroVale"
-                                    label="Número de vale"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="160px"
-                                    field="fecha"
-                                    label="Fecha"
-                                    type="datetime"
-                                ></vue-excel-column>
-                                <vue-excel-column width="80px" field="destino" label="Destino"></vue-excel-column>
-                                <vue-excel-column width="160px" field="equipo" label="Equipo"></vue-excel-column>
-                                <vue-excel-column width="80px" field="marca" label="Marca"></vue-excel-column>
-                                <vue-excel-column width="80px" field="categoria" label="Categoría"></vue-excel-column>
-                                <vue-excel-column width="80px" field="tipo" label="Tipo"></vue-excel-column>
-                                <vue-excel-column
-                                    width="160px"
-                                    field="codigoBarras"
-                                    label="Código de barras"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="160px"
-                                    field="codigoProducto"
-                                    label="Código de producto"
-                                ></vue-excel-column>
-                                <vue-excel-column width="64px" field="cantidad" label="Cant"></vue-excel-column>
-                                <vue-excel-column width="64px" field="unidadMedida" label="UM"></vue-excel-column>
-                                <vue-excel-column
-                                    width="64px"
-                                    field="costoUnitario"
-                                    label="Costo unitario ($)"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="80px"
-                                    field="importe"
-                                    label="Importe ($)"
-                                    summary="sum"
-                                ></vue-excel-column>
-                            </vue-excel-editor>
-                            <v-btn @click="descargaReporte()" class="mt-4" color="accent">Descargar</v-btn>
+                            <v-checkbox label="Rango de fechas" v-model="rango"></v-checkbox>
+
+                            <v-row v-if="!rango">
+                                <v-col cols="12">
+                                    <v-date-picker v-model="fechaUnica"></v-date-picker>
+                                </v-col>
+                            </v-row>
+                            <v-row v-else>
+                                <v-col cols="12">
+                                    <v-date-picker v-model="fechaRango" range></v-date-picker>
+                                </v-col>
+                                <v-col>
+                                    <v-text-field label="Desde" v-model="fechaDesde" solo readonly></v-text-field>
+                                </v-col>
+                                <v-col>
+                                    <v-text-field label="Hasta" v-model="fechaHasta" solo readonly></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12">
+                                    <xlsx-workbook>
+                                        <xlsx-sheet :collection="excelEntradas" key="Entradas" sheet-name="Entradas" />
+                                        <xlsx-download filename="Reporte de entradas.xlsx">
+                                            <v-btn color="primary">Descargar reporte</v-btn>
+                                        </xlsx-download>
+                                    </xlsx-workbook>
+                                </v-col>
+                            </v-row>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -65,14 +46,27 @@
 </template>
 <script>
     import { mapGetters } from 'vuex'
+    import XlsxWorkbook from 'vue-xlsx/dist/components/XlsxWorkbook'
+    import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
+    import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
+    import moment from 'moment'
 
     export default {
+        components: {
+            XlsxWorkbook,
+            XlsxSheet,
+            XlsxDownload,
+        },
+
         data() {
             return {
                 active: false,
 
                 searchFechaMenu: false,
                 date: [],
+                fechaUnica: moment().format('YYYY-MM-DD'),
+                fechaRango: [],
+                rango: false,
             }
         },
 
@@ -81,43 +75,103 @@
                 entradas: 'getEntradas',
             }),
 
-            entradasEquipo: function () {
-                var entradasEquipo = []
+            fechaDesde() {
+                if (this.fechaRango.length == 2) {
+                    if (moment(this.fechaRango[0]).isBefore(moment(this.fechaRango[1]))) {
+                        return this.fechaRango[0]
+                    } else {
+                        return this.fechaRango[1]
+                    }
+                } else {
+                    return null
+                }
+            },
 
-                if (this.entradas.length > 0) {
-                    this.entradas.forEach((entrada) => {
-                        entrada.equipos.forEach((equipo) => {
-                            entradasEquipo.push({
-                                folioEntrada: entrada.id_entrada,
-                                numeroVale: entrada.numero_vale_entrada,
-                                fecha: entrada.created_at,
-                                destino: entrada.destino.nombre_destino,
-                                equipo: equipo.nombre_equipo,
-                                marca: equipo.marca.nombre_marca,
-                                categoria: equipo.categoria.nombre_categoria,
-                                tipo: equipo.tipo_equipo.nombre_tipo_equipo,
-                                codigoBarras: equipo.codigo_barras_equipo,
-                                codigoProducto: equipo.codigo_producto_equipo,
-                                cantidad: equipo.pivot.cantidad,
-                                unidadMedida: equipo.unidad_medida.nombre_unidad_medida,
-                                costoUnitario: parseFloat(equipo.pivot.costo_unitario).toFixed(2),
-                                importe: parseFloat(equipo.pivot.costo_unitario * equipo.pivot.cantidad).toFixed(2),
-                            })
-                        })
+            fechaHasta() {
+                if (this.fechaRango.length == 2) {
+                    if (moment(this.fechaRango[0]).isBefore(moment(this.fechaRango[1]))) {
+                        return this.fechaRango[1]
+                    } else {
+                        return this.fechaRango[0]
+                    }
+                } else {
+                    return null
+                }
+            },
+
+            filteredEntradas() {
+                if (this.fechaUnica) {
+                    return this.entradas.filter((entrada) => {
+                        if (this.rango) {
+                            if (moment(entrada.created_at).isBetween(this.fechaDesde, this.fechaHasta)) {
+                                return entrada
+                            }
+                        } else {
+                            if (moment(entrada.created_at).diff(moment(this.fechaUnica), 'days') == 0) {
+                                return entrada
+                            }
+                        }
                     })
                 }
+            },
 
-                return entradasEquipo
+            excelEntradas() {
+                var excel = []
+
+                this.filteredEntradas.forEach((entrada) => {
+                    entrada.equipos.forEach((equipo) => {
+                        excel.push({
+                            'Folio de entrada': entrada.id_entrada,
+                            'Numero de vale': entrada.numero_vale_entrada,
+                            Fecha: entrada.created_at,
+                            Destino: entrada.destino.nombre_destino,
+                            Equipo: equipo.nombre_equipo,
+                            Marca: equipo.marca.nombre_marca,
+                            Categoria: equipo.categoria.nombre_categoria,
+                            Tipo: equipo.tipo_equipo.nombre_tipo_equipo,
+                            'Codigo de barras': equipo.codigo_barras_equipo,
+                            'Codigo de producto': equipo.codigo_producto_equipo,
+                            Cantidad: equipo.pivot.cantidad,
+                            'Unidad de medida': equipo.unidad_medida.nombre_unidad_medida,
+                            'Costo unitario': parseFloat(equipo.pivot.costo_unitario).toFixed(2),
+                            Importe: parseFloat(equipo.pivot.costo_unitario * equipo.pivot.cantidad).toFixed(2),
+                        })
+                    })
+                })
+
+                excel.push({
+                    'Folio de entrada': '',
+                    'Numero de vale': '',
+                    Fecha: '',
+                    Destino: '',
+                    Equipo: '',
+                    Marca: '',
+                    Categoria: '',
+                    Tipo: '',
+                    'Codigo de barras': '',
+                    'Codigo de producto': '',
+                    Cantidad: '',
+                    'Unidad de medida': '',
+                    'Costo unitario': 'TOTAL',
+                    Importe: this.totalGeneral,
+                })
+
+                return excel
+            },
+
+            totalGeneral() {
+                var total = 0
+
+                this.filteredEntradas.forEach((entrada) => {
+                    entrada.equipos.forEach((equipo) => {
+                        total += +parseFloat(equipo.pivot.costo_unitario * equipo.pivot.cantidad).toFixed(2)
+                    })
+                })
+
+                return total
             },
         },
 
-        methods: {
-            descargaReporte: function () {
-                const format = 'xlsx'
-                const exportSelectedOnly = false
-                const filename = 'reporte_entradas'
-                this.$refs.report.exportTable(format, exportSelectedOnly, filename)
-            },
-        },
+        methods: {},
     }
 </script>

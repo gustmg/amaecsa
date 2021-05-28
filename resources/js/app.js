@@ -15,6 +15,7 @@ import VueApexCharts from 'vue-apexcharts'
 import es from 'vuetify/lib/locale/es'
 import Vue from 'vue'
 import VueExcelEditor from 'vue-excel-editor'
+import VueBarcode from 'vue-barcode'
 
 import Print from 'vue-print-nb'
 // Global instruction
@@ -26,6 +27,7 @@ Vue.use(VueApexCharts)
 Vue.use(VueExcelEditor)
 
 Vue.component('apexchart', VueApexCharts)
+Vue.component('barcode', VueBarcode)
 
 const store = new Vuex.Store(storeData)
 

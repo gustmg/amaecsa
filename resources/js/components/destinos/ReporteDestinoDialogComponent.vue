@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="active" width="560">
+    <v-dialog v-model="active" width="480">
         <template v-slot:activator="{ on, attrs }">
             <v-btn color="accent" class="mx-2" v-on="on" v-bind="attrs">Reportes</v-btn>
         </template>
@@ -9,28 +9,13 @@
                 <v-container fluid>
                     <v-row>
                         <v-col align="center">
-                            <vue-excel-editor v-model="destinoReporte" ref="report" filter-row readonly>
-                                <vue-excel-column
-                                    width="160px"
-                                    field="nombreDestino"
-                                    label="Destino"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="80px"
-                                    field="prestamosRealizados"
-                                    label="Préstamos realizados"
-                                ></vue-excel-column>
-                                <vue-excel-column
-                                    width="80px"
-                                    field="prestamosPendientes"
-                                    label="Préstamos pendientes"
-                                ></vue-excel-column>
-                            </vue-excel-editor>
-                        </v-col>
-                    </v-row>
-                    <v-row justify="center">
-                        <v-col align="center">
-                            <v-btn @click="descargaReporte()" class="mt-4" color="accent">Descargar</v-btn>
+                            <div class="text-subtitle-1">Reporte generado</div>
+                            <xlsx-workbook>
+                                <xlsx-sheet :collection="excelDestinos" :key="sheets.name" :sheet-name="sheets.name" />
+                                <xlsx-download filename="Reporte de destinos.xlsx">
+                                    <v-btn color="primary">Descargar reporte</v-btn>
+                                </xlsx-download>
+                            </xlsx-workbook>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -40,14 +25,25 @@
 </template>
 <script>
     import { mapGetters } from 'vuex'
+    import XlsxWorkbook from 'vue-xlsx/dist/components/XlsxWorkbook'
+    import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
+    import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
 
     export default {
+        components: {
+            XlsxWorkbook,
+            XlsxSheet,
+            XlsxDownload,
+        },
+
         data() {
             return {
                 active: false,
 
                 searchFechaMenu: false,
                 date: [],
+
+                sheets: [{ name: 'Destinos' }],
             }
         },
 
@@ -60,39 +56,30 @@
                 prestamos: 'getPrestamos',
             }),
 
-            destinoReporte: function () {
-                var destinoReporte = []
+            excelDestinos() {
+                var excel = []
 
-                if (this.destinos.length > 0) {
-                    this.destinos.forEach((destino) => {
-                        destinoReporte.push({
-                                nombreDestino: destino.nombre_destino,
-                                prestamosRealizados: this.getPrestamosRealizados(destino.id_destino),
-                                prestamosPendientes: this.getPrestamosPendientes(destino.id_destino),
-                            })
+                this.destinos.forEach((destino) => {
+                    excel.push({
+                        Destino: destino.nombre_destino,
+                        'Préstamos realizados': this.getPrestamosRealizados(destino.id_destino),
+                        'Préstamos pendientes': this.getPrestamosPendientes(destino.id_destino),
                     })
-                }
+                })
 
-                return destinoReporte
+                return excel
             },
         },
 
         methods: {
-            descargaReporte: function () {
-                const format = 'xlsx'
-                const exportSelectedOnly = false
-                const filename = 'reporte_destinos'
-                this.$refs.report.exportTable(format, exportSelectedOnly, filename)
-            },
-
-            getPrestamosRealizados: function(id_destino) {
-                return this.prestamos.filter(prestamo => {
+            getPrestamosRealizados: function (id_destino) {
+                return this.prestamos.filter((prestamo) => {
                     return prestamo.id_destino == id_destino
                 }).length
             },
 
-            getPrestamosPendientes: function(id_destino) {
-                return this.prestamos.filter(prestamo => {
+            getPrestamosPendientes: function (id_destino) {
+                return this.prestamos.filter((prestamo) => {
                     return prestamo.id_destino == id_destino && prestamo.recibido == 0
                 }).length
             },
