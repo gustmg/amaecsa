@@ -11,7 +11,7 @@
                         <v-col align="center">
                             <div class="text-subtitle-1">Reporte generado</div>
                             <xlsx-workbook>
-                                <xlsx-sheet :collection="excelEquipos" :key="sheets.name" :sheet-name="sheets.name" />
+                                <xlsx-sheet :collection="excelEquipos" key="Equipos" sheet-name="Equipos" />
                                 <xlsx-download filename="Reporte de equipos.xlsx">
                                     <v-btn color="primary">Descargar reporte</v-btn>
                                 </xlsx-download>
