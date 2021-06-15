@@ -10,7 +10,6 @@
                     <v-row>
                         <v-col align="center">
                             <v-checkbox label="Rango de fechas" v-model="rango"></v-checkbox>
-
                             <v-row v-if="!rango">
                                 <v-col cols="12">
                                     <v-date-picker v-model="fechaUnica"></v-date-picker>
@@ -29,12 +28,13 @@
                             </v-row>
                             <v-row>
                                 <v-col cols="12">
-                                    <xlsx-workbook>
+                                    <!-- <xlsx-workbook>
                                         <xlsx-sheet :collection="excelEntradas" key="Entradas" sheet-name="Entradas" />
                                         <xlsx-download filename="Reporte de entradas.xlsx">
                                             <v-btn color="primary">Descargar reporte</v-btn>
                                         </xlsx-download>
-                                    </xlsx-workbook>
+                                    </xlsx-workbook> -->
+                                    <v-btn @click="exportExcel()" color="primary">Descargar</v-btn>
                                 </v-col>
                             </v-row>
                         </v-col>
@@ -50,6 +50,7 @@
     import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
     import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
     import moment from 'moment'
+    import XLSX from 'xlsx'
 
     export default {
         components: {
@@ -116,45 +117,48 @@
             },
 
             excelEntradas() {
-                var excel = []
+                var excel = [
+                    ['REPORTE DE ENTRADAS'],
+                    [
+                        'Folio de entrada',
+                        'Número de vale',
+                        'Fecha',
+                        'Destino',
+                        'Equipo',
+                        'Marca',
+                        'Categoría',
+                        'Tipo',
+                        'Código de barras',
+                        'Código de producto',
+                        'Cantidad',
+                        'Unidad de medida',
+                        'Costo unitario',
+                        'Importe',
+                    ],
+                ]
 
                 this.filteredEntradas.forEach((entrada) => {
                     entrada.equipos.forEach((equipo) => {
-                        excel.push({
-                            'Folio de entrada': entrada.id_entrada,
-                            'Numero de vale': entrada.numero_vale_entrada,
-                            Fecha: entrada.created_at,
-                            Destino: entrada.destino.nombre_destino,
-                            Equipo: equipo.nombre_equipo,
-                            Marca: equipo.marca.nombre_marca,
-                            Categoria: equipo.categoria.nombre_categoria,
-                            Tipo: equipo.tipo_equipo.nombre_tipo_equipo,
-                            'Codigo de barras': equipo.codigo_barras_equipo,
-                            'Codigo de producto': equipo.codigo_producto_equipo,
-                            Cantidad: equipo.pivot.cantidad,
-                            'Unidad de medida': equipo.unidad_medida.nombre_unidad_medida,
-                            'Costo unitario': parseFloat(equipo.pivot.costo_unitario).toFixed(2),
-                            Importe: parseFloat(equipo.pivot.costo_unitario * equipo.pivot.cantidad).toFixed(2),
-                        })
+                        excel.push([
+                            entrada.id_entrada,
+                            entrada.numero_vale_entrada,
+                            entrada.created_at,
+                            entrada.destino.nombre_destino,
+                            equipo.nombre_equipo,
+                            equipo.marca.nombre_marca,
+                            equipo.categoria.nombre_categoria,
+                            equipo.tipo_equipo.nombre_tipo_equipo,
+                            equipo.codigo_barras_equipo,
+                            equipo.codigo_producto_equipo,
+                            equipo.pivot.cantidad,
+                            equipo.unidad_medida.nombre_unidad_medida,
+                            parseFloat(equipo.pivot.costo_unitario).toFixed(2),
+                            parseFloat(equipo.pivot.costo_unitario * equipo.pivot.cantidad).toFixed(2),
+                        ])
                     })
                 })
 
-                excel.push({
-                    'Folio de entrada': '',
-                    'Numero de vale': '',
-                    Fecha: '',
-                    Destino: '',
-                    Equipo: '',
-                    Marca: '',
-                    Categoria: '',
-                    Tipo: '',
-                    'Codigo de barras': '',
-                    'Codigo de producto': '',
-                    Cantidad: '',
-                    'Unidad de medida': '',
-                    'Costo unitario': 'TOTAL',
-                    Importe: this.totalGeneral,
-                })
+                excel.push(['', '', '', '', '', '', '', '', '', '', '', '', 'TOTAL', this.totalGeneral])
 
                 return excel
             },
@@ -172,6 +176,25 @@
             },
         },
 
-        methods: {},
+        methods: {
+            exportExcel() {
+                const jsonWorkSheet = XLSX.utils.aoa_to_sheet(this.excelEntradas)
+                const workBook = {
+                    SheetNames: ['Entradas'], // sheet name
+                    Sheets: {
+                        Entradas: jsonWorkSheet,
+                    },
+                }
+
+                const range = XLSX.utils.decode_range(jsonWorkSheet['!ref'])
+                for (let row = range.s.r + 2; row <= range.e.r; ++row) {
+                    const ref = XLSX.utils.encode_cell({ r: row, c: 13 })
+                    jsonWorkSheet[ref].t = 'n'
+                    jsonWorkSheet[ref].z = '0.00'
+                }
+
+                XLSX.writeFile(workBook, 'reporte de entradas.xlsx')
+            },
+        },
     }
 </script>

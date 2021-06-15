@@ -40,7 +40,7 @@
                             </v-row>
                             <v-row>
                                 <v-col cols="12">
-                                    <xlsx-workbook>
+                                    <!-- <xlsx-workbook>
                                         <xlsx-sheet
                                             :collection="excelPrestamos"
                                             key="Prestamos"
@@ -49,7 +49,8 @@
                                         <xlsx-download filename="Reporte de prestamos.xlsx">
                                             <v-btn color="primary">Descargar reporte</v-btn>
                                         </xlsx-download>
-                                    </xlsx-workbook>
+                                    </xlsx-workbook> -->
+                                    <v-btn @click="exportExcel()" color="primary">Descargar</v-btn>
                                 </v-col>
                             </v-row>
                         </v-col>
@@ -65,6 +66,7 @@
     import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
     import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
     import moment from 'moment'
+    import XLSX from 'xlsx'
 
     export default {
         components: {
@@ -159,49 +161,50 @@
             },
 
             excelPrestamos() {
-                var excel = []
+                var excel = [
+                    ['REPORTE DE PRESTAMOS'],
+                    [
+                        'Folio de préstamo',
+                        'Fecha de entrega',
+                        'Fecha de recepción',
+                        'Recibido',
+                        'Personal',
+                        'Destino',
+                        'Equipo',
+                        'Marca',
+                        'Categoría',
+                        'Tipo',
+                        'Código de barras',
+                        'Código de producto',
+                        'Cantidad',
+                        'Unidad de medida',
+                        'Costo unitario',
+                        'Valor de préstamo',
+                    ],
+                ]
 
                 this.filteredPrestamos.forEach((prestamo) => {
-                    excel.push({
-                        'Folio de prestamo': prestamo.id_prestamo,
-                        'Fecha de entrega': prestamo.created_at,
-                        'Fecha de recepción': this.getFechaRecibido(prestamo),
-                        Recibido: this.getPrestamoRecibido(prestamo),
-                        Personal: prestamo.personal.nombre_personal,
-                        Destino: prestamo.destino.nombre_destino,
-                        Equipo: prestamo.equipo.nombre_equipo,
-                        Marca: prestamo.equipo.marca.nombre_marca,
-                        Categoria: prestamo.equipo.categoria.nombre_categoria,
-                        Tipo: prestamo.equipo.tipo_equipo.nombre_tipo_equipo,
-                        'Codigo de barras': prestamo.equipo.codigo_barras_equipo,
-                        'Codigo de producto': prestamo.equipo.codigo_producto_equipo,
-                        Cantidad: prestamo.cantidad,
-                        'Unidad de medida': prestamo.equipo.unidad_medida.nombre_unidad_medida,
-                        'Costo unitario': this.getCostoUnitario(prestamo.equipo.id_equipo),
-                        'Valor de préstamo': parseFloat(
-                            this.getCostoUnitario(prestamo.equipo.id_equipo) * prestamo.cantidad
-                        ).toFixed(2),
-                    })
+                    excel.push([
+                        prestamo.id_prestamo,
+                        prestamo.created_at,
+                        this.getFechaRecibido(prestamo),
+                        this.getPrestamoRecibido(prestamo),
+                        prestamo.personal.nombre_personal,
+                        prestamo.destino.nombre_destino,
+                        prestamo.equipo.nombre_equipo,
+                        prestamo.equipo.marca.nombre_marca,
+                        prestamo.equipo.categoria.nombre_categoria,
+                        prestamo.equipo.tipo_equipo.nombre_tipo_equipo,
+                        prestamo.equipo.codigo_barras_equipo,
+                        prestamo.equipo.codigo_producto_equipo,
+                        prestamo.cantidad,
+                        prestamo.equipo.unidad_medida.nombre_unidad_medida,
+                        this.getCostoUnitario(prestamo.equipo.id_equipo),
+                        parseFloat(this.getCostoUnitario(prestamo.equipo.id_equipo) * prestamo.cantidad).toFixed(2),
+                    ])
                 })
 
-                excel.push({
-                    'Folio de prestamo': '',
-                    'Fecha de entrega': '',
-                    'Fecha de recepción': '',
-                    Recibido: '',
-                    Personal: '',
-                    Destino: '',
-                    Equipo: '',
-                    Marca: '',
-                    Categoria: '',
-                    Tipo: '',
-                    'Codigo de barras': '',
-                    'Codigo de producto': '',
-                    Cantidad: '',
-                    'Unidad de medida': '',
-                    'Costo unitario': 'TOTAL',
-                    'Valor de préstamo': this.totalGeneral,
-                })
+                excel.push(['', '', '', '', '', '', '', '', '', '', '', '', '', '', 'TOTAL', this.totalGeneral])
 
                 return excel
             },
@@ -271,6 +274,25 @@
                 } else if (prestamo.recibido == 0) {
                     return 'NO'
                 } else return 'N/A'
+            },
+
+            exportExcel() {
+                const jsonWorkSheet = XLSX.utils.aoa_to_sheet(this.excelPrestamos)
+                const workBook = {
+                    SheetNames: ['Prestamos'], // sheet name
+                    Sheets: {
+                        Prestamos: jsonWorkSheet,
+                    },
+                }
+
+                const range = XLSX.utils.decode_range(jsonWorkSheet['!ref'])
+                for (let row = range.s.r + 2; row <= range.e.r; ++row) {
+                    const ref = XLSX.utils.encode_cell({ r: row, c: 15 })
+                    jsonWorkSheet[ref].t = 'n'
+                    jsonWorkSheet[ref].z = '0.00'
+                }
+
+                XLSX.writeFile(workBook, 'reporte de prestamos.xlsx')
             },
         },
     }

@@ -9,13 +9,13 @@
                 <v-container fluid>
                     <v-row>
                         <v-col align="center">
-                            <div class="text-subtitle-1">Reporte generado</div>
-                            <xlsx-workbook>
+                            <v-btn @click="exportExcel()" color="primary">Descargar</v-btn>
+                            <!-- <xlsx-workbook>
                                 <xlsx-sheet :collection="excelEquipos" key="equipos" sheet-name="equipos" />
                                 <xlsx-download filename="Reporte de equipos.xlsx">
                                     <v-btn color="primary">Descargar reporte</v-btn>
                                 </xlsx-download>
-                            </xlsx-workbook>
+                            </xlsx-workbook> -->
                         </v-col>
                     </v-row>
                 </v-container>
@@ -28,6 +28,7 @@
     import XlsxWorkbook from 'vue-xlsx/dist/components/XlsxWorkbook'
     import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
     import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
+    import XLSX from 'xlsx'
 
     export default {
         components: {
@@ -65,35 +66,38 @@
             filteredEquipos() {},
 
             excelEquipos() {
-                var excel = []
+                var excel = [
+                    ['REPORTE DE EQUIPOS'],
+                    [
+                        'Código de barras',
+                        'Código de producto',
+                        'Nombre',
+                        'Categoría',
+                        'Tipo',
+                        'Marca',
+                        'Stock',
+                        'Unidad de medida',
+                        'Costo unitario',
+                        'Costo total',
+                    ],
+                ]
 
                 this.equipos.forEach((equipo) => {
-                    excel.push({
-                        'Código de barras': equipo.codigo_barras_equipo,
-                        'Código de producto': equipo.codigo_producto_equipo,
-                        Nombre: equipo.nombre_equipo,
-                        Categoría: equipo.categoria.nombre_categoria,
-                        Tipo: equipo.tipo_equipo.nombre_tipo_equipo,
-                        Marca: equipo.marca.nombre_marca,
-                        Stock: equipo.stock_equipo,
-                        'Unidad de medida': equipo.unidad_medida.nombre_unidad_medida,
-                        'Costo unitario': this.getCostoUnitario(equipo.id_equipo),
-                        'Valor total': this.getCostoTotalEquipo(equipo),
-                    })
+                    excel.push([
+                        equipo.codigo_barras_equipo,
+                        equipo.codigo_producto_equipo,
+                        equipo.nombre_equipo,
+                        equipo.categoria.nombre_categoria,
+                        equipo.tipo_equipo.nombre_tipo_equipo,
+                        equipo.marca.nombre_marca,
+                        equipo.stock_equipo,
+                        equipo.unidad_medida.nombre_unidad_medida,
+                        this.getCostoUnitario(equipo.id_equipo),
+                        this.getCostoTotalEquipo(equipo),
+                    ])
                 })
 
-                excel.push({
-                    'Código de barras': '',
-                    'Código de producto': '',
-                    Nombre: '',
-                    Categoría: '',
-                    Tipo: '',
-                    Marca: '',
-                    Stock: '',
-                    'Unidad de medida': '',
-                    'Costo unitario': 'TOTAL',
-                    'Valor total': this.activos,
-                })
+                excel.push(['', '', '', '', '', '', '', '', 'TOTAL', this.activos])
 
                 return excel
             },
@@ -147,6 +151,25 @@
 
             getCostoTotalEquipo: function (equipo) {
                 return parseFloat(this.getCostoUnitario(equipo.id_equipo) * equipo.stock_equipo).toFixed(2)
+            },
+
+            exportExcel() {
+                const jsonWorkSheet = XLSX.utils.aoa_to_sheet(this.excelEquipos)
+                const workBook = {
+                    SheetNames: ['Equipos'], // sheet name
+                    Sheets: {
+                        Equipos: jsonWorkSheet,
+                    },
+                }
+
+                const range = XLSX.utils.decode_range(jsonWorkSheet['!ref'])
+                for (let row = range.s.r + 2; row <= range.e.r; ++row) {
+                    const ref = XLSX.utils.encode_cell({ r: row, c: 9 })
+                    jsonWorkSheet[ref].t = 'n'
+                    jsonWorkSheet[ref].z = '0.00'
+                }
+
+                XLSX.writeFile(workBook, 'reporte de equipos.xlsx')
             },
         },
     }

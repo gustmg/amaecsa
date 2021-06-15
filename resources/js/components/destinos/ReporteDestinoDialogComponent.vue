@@ -9,13 +9,14 @@
                 <v-container fluid>
                     <v-row>
                         <v-col align="center">
-                            <div class="text-subtitle-1">Reporte generado</div>
+                            <!-- <div class="text-subtitle-1">Reporte generado</div>
                             <xlsx-workbook>
                                 <xlsx-sheet :collection="excelDestinos" :key="sheets.name" :sheet-name="sheets.name" />
                                 <xlsx-download filename="Reporte de destinos.xlsx">
                                     <v-btn color="primary">Descargar reporte</v-btn>
                                 </xlsx-download>
-                            </xlsx-workbook>
+                            </xlsx-workbook> -->
+                            <v-btn @click="exportExcel()" color="primary">Descargar</v-btn>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -28,6 +29,7 @@
     import XlsxWorkbook from 'vue-xlsx/dist/components/XlsxWorkbook'
     import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
     import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
+    import XLSX from 'xlsx'
 
     export default {
         components: {
@@ -57,14 +59,14 @@
             }),
 
             excelDestinos() {
-                var excel = []
+                var excel = [['REPORTE DE DESTINOS'], ['Destino', 'Préstamos realizados', 'Préstamos pendientes']]
 
                 this.destinos.forEach((destino) => {
-                    excel.push({
-                        Destino: destino.nombre_destino,
-                        'Préstamos realizados': this.getPrestamosRealizados(destino.id_destino),
-                        'Préstamos pendientes': this.getPrestamosPendientes(destino.id_destino),
-                    })
+                    excel.push([
+                        destino.nombre_destino,
+                        this.getPrestamosRealizados(destino.id_destino),
+                        this.getPrestamosPendientes(destino.id_destino),
+                    ])
                 })
 
                 return excel
@@ -82,6 +84,18 @@
                 return this.prestamos.filter((prestamo) => {
                     return prestamo.id_destino == id_destino && prestamo.recibido == 0
                 }).length
+            },
+
+            exportExcel() {
+                const jsonWorkSheet = XLSX.utils.aoa_to_sheet(this.excelDestinos)
+                const workBook = {
+                    SheetNames: ['Destinos'], // sheet name
+                    Sheets: {
+                        Destinos: jsonWorkSheet,
+                    },
+                }
+
+                XLSX.writeFile(workBook, 'reporte de destinos.xlsx')
             },
         },
     }

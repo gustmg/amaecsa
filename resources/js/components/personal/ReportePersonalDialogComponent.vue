@@ -9,13 +9,13 @@
                 <v-container fluid>
                     <v-row>
                         <v-col align="center">
-                            <div class="text-subtitle-1">Reporte generado</div>
-                            <xlsx-workbook>
+                            <!-- <xlsx-workbook>
                                 <xlsx-sheet :collection="excelPrestamos" :key="sheets.name" :sheet-name="sheets.name" />
                                 <xlsx-download filename="Reporte de personal.xlsx">
                                     <v-btn color="primary">Descargar reporte</v-btn>
                                 </xlsx-download>
-                            </xlsx-workbook>
+                            </xlsx-workbook> -->
+                            <v-btn @click="exportExcel()" color="primary">Descargar</v-btn>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -28,6 +28,7 @@
     import XlsxWorkbook from 'vue-xlsx/dist/components/XlsxWorkbook'
     import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
     import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
+    import XLSX from 'xlsx'
 
     export default {
         components: {
@@ -57,15 +58,18 @@
             }),
 
             excelPrestamos() {
-                var excel = []
+                var excel = [
+                    ['REPORTE DE PERSONAL'],
+                    ['Código personal', 'Nombre', 'Préstamos realizados', 'Préstamos pendientes'],
+                ]
 
                 this.personal.forEach((persona) => {
-                    excel.push({
-                        'Código personal': persona.codigo_personal,
-                        Nombre: persona.nombre_personal,
-                        'Préstamos realizados': this.getPrestamosRealizados(persona.id_personal),
-                        'Préstamos pendientes': this.getPrestamosPendientes(persona.id_personal),
-                    })
+                    excel.push([
+                        persona.codigo_personal,
+                        persona.nombre_personal,
+                        this.getPrestamosRealizados(persona.id_personal),
+                        this.getPrestamosPendientes(persona.id_personal),
+                    ])
                 })
 
                 return excel
@@ -83,6 +87,18 @@
                 return this.prestamos.filter((prestamo) => {
                     return prestamo.id_personal == id_personal && prestamo.recibido == 0
                 }).length
+            },
+
+            exportExcel() {
+                const jsonWorkSheet = XLSX.utils.aoa_to_sheet(this.excelPrestamos)
+                const workBook = {
+                    SheetNames: ['Personal'], // sheet name
+                    Sheets: {
+                        Personal: jsonWorkSheet,
+                    },
+                }
+
+                XLSX.writeFile(workBook, 'reporte de personal.xlsx')
             },
         },
     }

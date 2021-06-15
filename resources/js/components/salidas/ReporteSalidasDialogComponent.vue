@@ -29,12 +29,13 @@
                             </v-row>
                             <v-row>
                                 <v-col cols="12">
-                                    <xlsx-workbook>
+                                    <!-- <xlsx-workbook>
                                         <xlsx-sheet :collection="excelSalidas" key="Salidas" sheet-name="Salidas" />
                                         <xlsx-download filename="Reporte de salidas.xlsx">
                                             <v-btn color="primary">Descargar reporte</v-btn>
                                         </xlsx-download>
-                                    </xlsx-workbook>
+                                    </xlsx-workbook> -->
+                                    <v-btn @click="exportExcel()" color="primary">Descargar</v-btn>
                                 </v-col>
                             </v-row>
                         </v-col>
@@ -50,6 +51,7 @@
     import XlsxSheet from 'vue-xlsx/dist/components/XlsxSheet'
     import XlsxDownload from 'vue-xlsx/dist/components/XlsxDownload'
     import moment from 'moment'
+    import XLSX from 'xlsx'
 
     export default {
         components: {
@@ -120,45 +122,46 @@
             },
 
             excelSalidas() {
-                var excel = []
+                var excel = [
+                    ['REPORTE DE SALIDAS'],
+                    [
+                        'Folio de salida',
+                        'Fecha',
+                        'Equipo',
+                        'Marca',
+                        'Categoría',
+                        'Tipo',
+                        'Código de barras',
+                        'Código de producto',
+                        'Motivo',
+                        'Cantidad',
+                        'Unidad de medida',
+                        'Costo unitario',
+                        'Importe',
+                    ],
+                ]
 
                 this.filteredSalidas.forEach((salida) => {
                     salida.equipos.forEach((equipo) => {
-                        excel.push({
-                            'Folio de salida': salida.id_salida,
-                            Fecha: salida.created_at,
-                            Equipo: equipo.nombre_equipo,
-                            Marca: equipo.marca.nombre_marca,
-                            Categoria: equipo.categoria.nombre_categoria,
-                            Tipo: equipo.tipo_equipo.nombre_tipo_equipo,
-                            'Codigo de barras': equipo.codigo_barras_equipo,
-                            'Codigo de producto': equipo.codigo_producto_equipo,
-                            Motivo: equipo.pivot.comentario,
-                            Cantidad: equipo.pivot.cantidad,
-                            'Unidad de medida': equipo.unidad_medida.nombre_unidad_medida,
-                            'Costo unitario': this.getCostoUnitario(equipo.id_equipo),
-                            Importe: parseFloat(
-                                this.getCostoUnitario(equipo.id_equipo) * equipo.pivot.cantidad
-                            ).toFixed(2),
-                        })
+                        excel.push([
+                            salida.id_salida,
+                            salida.created_at,
+                            equipo.nombre_equipo,
+                            equipo.marca.nombre_marca,
+                            equipo.categoria.nombre_categoria,
+                            equipo.tipo_equipo.nombre_tipo_equipo,
+                            equipo.codigo_barras_equipo,
+                            equipo.codigo_producto_equipo,
+                            equipo.pivot.comentario,
+                            equipo.pivot.cantidad,
+                            equipo.unidad_medida.nombre_unidad_medida,
+                            this.getCostoUnitario(equipo.id_equipo),
+                            parseFloat(this.getCostoUnitario(equipo.id_equipo) * equipo.pivot.cantidad).toFixed(2),
+                        ])
                     })
                 })
 
-                excel.push({
-                    'Folio de salida': '',
-                    Fecha: '',
-                    Equipo: '',
-                    Marca: '',
-                    Categoria: '',
-                    Tipo: '',
-                    'Codigo de barras': '',
-                    'Codigo de producto': '',
-                    Motivo: '',
-                    Cantidad: '',
-                    'Unidad de medida': '',
-                    'Costo unitario': 'TOTAL',
-                    Importe: this.totalGeneral,
-                })
+                excel.push(['', '', '', '', '', '', '', '', '', '', '', 'TOTAL', this.totalGeneral])
 
                 return excel
             },
@@ -210,6 +213,25 @@
                 })
 
                 return (totalCosto / totalCantidad).toFixed(2)
+            },
+
+            exportExcel() {
+                const jsonWorkSheet = XLSX.utils.aoa_to_sheet(this.excelSalidas)
+                const workBook = {
+                    SheetNames: ['Salidas'], // sheet name
+                    Sheets: {
+                        Salidas: jsonWorkSheet,
+                    },
+                }
+
+                const range = XLSX.utils.decode_range(jsonWorkSheet['!ref'])
+                for (let row = range.s.r + 2; row <= range.e.r; ++row) {
+                    const ref = XLSX.utils.encode_cell({ r: row, c: 12 })
+                    jsonWorkSheet[ref].t = 'n'
+                    jsonWorkSheet[ref].z = '0.00'
+                }
+
+                XLSX.writeFile(workBook, 'reporte de salidas.xlsx')
             },
         },
     }
